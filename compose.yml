@@ -1,0 +1,37 @@
+services:
+  php:
+    build: docker/php
+    volumes:
+      - ./:/srv
+      - ~/.composer:/home/.composer
+      - ~/.ssh:/home/.ssh
+      - ./docker/php/conf/bashrc:/home/.bashrc
+      - ./docker/php/conf/bash_aliases:/home/.bash_aliases
+      - ./docker/php/conf/inputrc:/home/.inputrc
+      - ./docker/php/conf/history:/home/.bash_history
+      - ./docker/php/completion:/etc/bash_completion.d
+    expose:
+      - 9000
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+  nginx:
+    image: nginx:1.23.3-alpine
+    expose:
+      - 443
+    environment:
+      DOMAIN_NAME: default:twittix.local
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./public:/srv/public
+  postgres:
+    image: postgres:17.2-alpine3.21
+    expose:
+      - 5432
+    environment:
+      POSTGRES_PASSWORD: twittix
+      POSTGRES_USER: twittix
+      POSTGRES_DB: twittix
+    volumes:
+      - postgres:/var/lib/postgresql/data
+volumes:
+  postgres: ~
