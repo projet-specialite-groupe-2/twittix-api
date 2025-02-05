@@ -43,7 +43,7 @@ db: vendor start                                            ## Reset the databas
 	$(SYMFONY) doctrine:fixtures:load --no-interaction --group=dev
 	$(SYMFONY) doctrine:schema:validate
 
-install: pull start vendor db node-modules	## Install
+install: start vendor db	## Install
 
 cs:	## Apply cs fixer
 	$(EXEC_PHP) vendor/bin/php-cs-fixer fix --verbose --diff --show-progress=dots
