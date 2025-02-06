@@ -1,4 +1,3 @@
-.idea/
 /docker/php/conf/history
 .idea/
 ###> symfony/framework-bundle ###

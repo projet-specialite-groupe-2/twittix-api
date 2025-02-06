@@ -35,7 +35,10 @@ cc: ## Clear the cache
 cc-test: ## Clear the cache
 	$(SYMFONY) cache:clear --env=test
 
-db: vendor start                                            ## Reset the database
+diff: ## Create new migration
+	$(SYMFONY) doctrine:migrations:diff
+
+db:                                        ## Reset the database
 	@$(EXEC_PHP) php docker/php/wait-database.php
 	$(SYMFONY) doctrine:database:drop --if-exists --force
 	$(SYMFONY) doctrine:database:create --if-not-exists
