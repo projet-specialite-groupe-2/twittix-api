@@ -36,11 +36,11 @@ class User implements UserInterface
     private ?string $username = null;
 
     #[ORM\Column(length: 200, nullable: true)]
-    private ?string $bio = null;
+    private ?string $biography = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Assert\LessThanOrEqual(value: '-13 years', message: 'Vous devez avoir au moins 13 ans.')]
-    private ?\DateTimeInterface $birthday = null;
+    #[Assert\LessThanOrEqual(value: '-13 years', message: 'You must be at least 13 years old.')]
+    private ?\DateTimeInterface $birthdate = null;
 
     #[ORM\Column(length: 255)]
     private ?string $profileImgPath = null;
@@ -72,13 +72,12 @@ class User implements UserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return $this->email;
     }
 
     /**
      * @see UserInterface
      *
-     * @return list<string>
      */
     public function getRoles(): array
     {
@@ -120,26 +119,26 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getBio(): ?string
+    public function getBiography(): ?string
     {
-        return $this->bio;
+        return $this->biography;
     }
 
-    public function setBio(?string $bio): static
+    public function setBiography(?string $biography): static
     {
-        $this->bio = $bio;
+        $this->biography = $biography;
 
         return $this;
     }
 
-    public function getBirthday(): ?\DateTimeInterface
+    public function getBirthdate(): ?\DateTimeInterface
     {
-        return $this->birthday;
+        return $this->birthdate;
     }
 
-    public function setBirthday(\DateTimeInterface $birthday): static
+    public function setBirthdate(\DateTimeInterface $birthdate): static
     {
-        $this->birthday = $birthday;
+        $this->birthdate = $birthdate;
 
         return $this;
     }
