@@ -43,6 +43,7 @@ db:                                        ## Reset the database
 	$(SYMFONY) doctrine:database:drop --if-exists --force
 	$(SYMFONY) doctrine:database:create --if-not-exists
 	$(SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration
+	$(SYMFONY) doctrine:fixtures:load --no-interaction
 	$(SYMFONY) doctrine:schema:validate
 
 install: start vendor db	## Install

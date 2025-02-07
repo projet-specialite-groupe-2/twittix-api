@@ -160,7 +160,6 @@ class User implements UserInterface
         return $this;
     }
 
-    #[\Override]
     public function getPassword(): ?string
     {
         return $this->password;
