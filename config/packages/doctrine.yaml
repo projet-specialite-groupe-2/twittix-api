@@ -27,7 +27,7 @@ doctrine:
             Gedmo:
                 type: attribute
                 prefix: Gedmo
-                dir: "%kernel.project_dir%/vendor/gedmo/doctrine-extensions/src"
+                dir: "%kernel.project_dir%/vendor/gedmo/doctrine-extensions/src/Loggable/Entity"
                 alias: Gedmo
                 is_bundle: false
         controller_resolver:
