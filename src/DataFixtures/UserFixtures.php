@@ -17,8 +17,10 @@ class UserFixtures extends Fixture
         $user->setBiography('I am a user');
         $user->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $user->setProfileImgPath('profile.jpg');
-        $user->setBackgroundImgPath('background.jpg');
         $user->setUsername('user');
+        $user->setActive(true);
+        $user->setBanned(false);
+        $user->setPrivate(false);
 
         $manager->persist($user);
 
@@ -29,9 +31,11 @@ class UserFixtures extends Fixture
         $admin->setBiography('I am a admin');
         $admin->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $admin->setProfileImgPath('profile.jpg');
-        $admin->setBackgroundImgPath('background.jpg');
         $admin->setUsername('admin');
         $admin->setRoles(['ROLE_ADMIN']);
+        $admin->setActive(true);
+        $admin->setBanned(false);
+        $admin->setPrivate(false);
 
         $manager->persist($admin);
 
@@ -42,8 +46,10 @@ class UserFixtures extends Fixture
         $userDelete->setBiography('I am a user for testing delete');
         $userDelete->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $userDelete->setProfileImgPath('profile.jpg');
-        $userDelete->setBackgroundImgPath('background.jpg');
         $userDelete->setUsername('user-delete');
+        $userDelete->setActive(true);
+        $userDelete->setBanned(false);
+        $userDelete->setPrivate(false);
 
         $manager->persist($userDelete);
 
