@@ -65,20 +65,13 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
+    #[\Override]
     public function getUserIdentifier(): string
     {
         return $this->email;
     }
 
-    /**
-     * @see UserInterface
-     *
-     */
+    #[\Override]
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -167,6 +160,7 @@ class User implements UserInterface
         return $this;
     }
 
+    #[\Override]
     public function getPassword(): ?string
     {
         return $this->password;
