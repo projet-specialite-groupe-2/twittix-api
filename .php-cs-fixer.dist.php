@@ -14,9 +14,7 @@ return (new PhpCsFixer\Config())
             'elements' => ['property', 'method', 'const'],
         ],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
-        'phpdoc_to_comment' => [
-            'ignored_tags' => ['psalm-suppress', 'psalm-var'],
-        ],
+        'phpdoc_to_comment' => false,
         'phpdoc_align' => false,
         'trailing_comma_in_multiline' => [
             'elements' =>  ['arrays', 'arguments', 'parameters'],

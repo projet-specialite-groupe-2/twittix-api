@@ -3,22 +3,39 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\UserRepository;
+use App\State\PostUserStateProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @psalm-suppress MissingConstructor
  */
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(processor: PostUserStateProcessor::class),
+        new Put(),
+        new Delete(),
+        new Patch(),
+    ],
+)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -39,7 +56,7 @@ class User implements UserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column]
     private ?string $password = null;
 
     /**
@@ -48,27 +65,27 @@ class User implements UserInterface
     #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)] // Must be set after account creation but not on first POST so user can be onboarded
     private ?string $username = null;
 
     #[ORM\Column(length: 200, nullable: true)]
     private ?string $biography = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)] // Must be set after account creation but not on first POST so user can be onboarded
     #[Assert\LessThanOrEqual(value: '-13 years', message: 'You must be at least 13 years old.')]
     private ?\DateTimeInterface $birthdate = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $profileImgPath = null;
+    private ?string $profileImgPath = 'profile_image_path_base.jpg';
 
-    #[ORM\Column]
-    private ?bool $private = null;
+    #[ORM\Column(nullable: false)]
+    private bool $private = false;
 
-    #[ORM\Column]
-    private ?bool $active = null;
+    #[ORM\Column(nullable: false)]
+    private bool $active = true;
 
-    #[ORM\Column]
-    private ?bool $banned = null;
+    #[ORM\Column(nullable: false)]
+    private bool $banned = false;
 
     public function getId(): ?int
     {
@@ -168,6 +185,7 @@ class User implements UserInterface
         return $this;
     }
 
+    #[\Override]
     public function getPassword(): ?string
     {
         return $this->password;
@@ -180,7 +198,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function isPrivate(): ?bool
+    public function isPrivate(): bool
     {
         return $this->private;
     }
@@ -192,7 +210,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function isActive(): ?bool
+    public function isActive(): bool
     {
         return $this->active;
     }
@@ -204,7 +222,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function isBanned(): ?bool
+    public function isBanned(): bool
     {
         return $this->banned;
     }

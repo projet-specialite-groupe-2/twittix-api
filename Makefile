@@ -74,7 +74,7 @@ db-test:                                                    		## Init the test d
 	$(SYMFONY) doctrine:database:drop --if-exists --force --env=test
 	$(SYMFONY) doctrine:database:create --if-not-exists --env=test
 	$(SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration --env=test
-	$(SYMFONY) doctrine:fixtures:load --no-interaction --env=test --group=test
+	$(SYMFONY) doctrine:fixtures:load --no-interaction --env=test
 	$(SYMFONY) doctrine:schema:validate --env=test
 
 test: db-test                                                		## Run all the test suite

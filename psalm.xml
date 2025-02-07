@@ -16,4 +16,7 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <MissingTemplateParam errorLevel="suppress" />
+    </issueHandlers>
 </psalm>
