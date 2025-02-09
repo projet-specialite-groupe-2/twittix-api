@@ -17,6 +17,11 @@
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <directory name="src/Entity"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
         <MissingTemplateParam errorLevel="suppress" />
     </issueHandlers>
 </psalm>

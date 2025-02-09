@@ -11,6 +11,8 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\UserRepository;
 use App\State\PostUserStateProcessor;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -18,9 +20,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @psalm-suppress MissingConstructor
- */
 #[ApiResource(
     operations: [
         new GetCollection(),
@@ -86,6 +85,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: false)]
     private bool $banned = false;
+
+    /**
+     * @var Collection<int, Twit>
+     */
+    #[ORM\OneToMany(targetEntity: Twit::class, mappedBy: 'author')]
+    private Collection $twits;
+
+    public function __construct()
+    {
+        $this->twits = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -262,5 +272,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDeletedAt(?\DateTimeImmutable $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
+    }
+
+    /**
+     * @return Collection<int, Twit>
+     */
+    public function getTwits(): Collection
+    {
+        return $this->twits;
+    }
+
+    public function addTwit(Twit $twit): static
+    {
+        if (!$this->twits->contains($twit)) {
+            $this->twits->add($twit);
+            $twit->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTwit(Twit $twit): static
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->twits->removeElement($twit) && $twit->getAuthor() === $this) {
+            $twit->setAuthor(null);
+        }
+
+        return $this;
     }
 }

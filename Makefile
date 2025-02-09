@@ -38,6 +38,9 @@ cc-test: ## Clear the cache
 diff: ## Create new migration
 	$(SYMFONY) doctrine:migrations:diff
 
+fixtures: ## Load fixtures
+	$(SYMFONY) doctrine:fixtures:load --no-interaction
+
 db:                                        ## Reset the database
 	@$(EXEC_PHP) php docker/php/wait-database.php
 	$(SYMFONY) doctrine:database:drop --if-exists --force
