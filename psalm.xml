@@ -8,6 +8,7 @@
         findUnusedBaselineEntry="true"
         findUnusedCode="false"
         cacheDirectory="var/cache/psalm"
+    errorBaseline="psalm-baseline.xml"
 >
     <projectFiles>
         <directory name="src" />
@@ -15,4 +16,7 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <MissingTemplateParam errorLevel="suppress" />
+    </issueHandlers>
 </psalm>

@@ -35,11 +35,15 @@ cc: ## Clear the cache
 cc-test: ## Clear the cache
 	$(SYMFONY) cache:clear --env=test
 
-db: vendor start                                            ## Reset the database
+diff: ## Create new migration
+	$(SYMFONY) doctrine:migrations:diff
+
+db:                                        ## Reset the database
 	@$(EXEC_PHP) php docker/php/wait-database.php
 	$(SYMFONY) doctrine:database:drop --if-exists --force
 	$(SYMFONY) doctrine:database:create --if-not-exists
 	$(SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration
+	$(SYMFONY) doctrine:fixtures:load --no-interaction
 	$(SYMFONY) doctrine:schema:validate
 
 install: start vendor db	## Install
@@ -70,11 +74,11 @@ db-test:                                                    		## Init the test d
 	$(SYMFONY) doctrine:database:drop --if-exists --force --env=test
 	$(SYMFONY) doctrine:database:create --if-not-exists --env=test
 	$(SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration --env=test
-	$(SYMFONY) doctrine:fixtures:load --no-interaction --env=test --group=test
+	$(SYMFONY) doctrine:fixtures:load --no-interaction --env=test
 	$(SYMFONY) doctrine:schema:validate --env=test
 
 test: db-test                                                		## Run all the test suite
-	$(EXEC_PHP) bin/phpunit
+	$(EXEC_PHP) bin/phpunit --display-phpunit-deprecations
 
 test-group: db-test	## Lance des tests par groupe
 	$(EXEC_PHP) bin/phpunit --group=$$group
