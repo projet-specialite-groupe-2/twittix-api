@@ -20,7 +20,7 @@ class UserApiTest extends WebTestCase
     public function testGetUsers()
     {
         $response = $this->browser()->get('/api/users')->assertStatus(200)->assertJson();
-        $users = json_decode($response->content(), true);
+        $users = json_decode((string) $response->content(), true);
         $this->assertNotEmpty($users);
     }
 
@@ -31,7 +31,7 @@ class UserApiTest extends WebTestCase
          * @var User $user
          */
         $response = $this->browser()->get(sprintf('/api/users/%d', $id));
-        $userResponse = json_decode($response->content(), true);
+        $userResponse = json_decode((string) $response->content(), true);
         $user = $this->userRepository->find($id);
         self::assertNotNull($user);
         self::assertSame($user->getEmail(), $userResponse['email']);
@@ -56,7 +56,7 @@ class UserApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        $userResponse = json_decode($response->content(), true);
+        $userResponse = json_decode((string) $response->content(), true);
         /**
          * @var User $user
          */

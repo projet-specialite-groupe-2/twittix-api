@@ -97,6 +97,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->twits = new ArrayCollection();
     }
 
+    /**
+     * @var Collection<int, Conversation>
+     */
+    #[ORM\ManyToMany(targetEntity: Conversation::class, inversedBy: 'users')]
+    private Collection $conversations;
+
+    public function __construct()
+    {
+        $this->conversations = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -298,6 +309,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->twits->removeElement($twit) && $twit->getAuthor() === $this) {
             $twit->setAuthor(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Conversation>
+     */
+    public function getConversations(): Collection
+    {
+        return $this->conversations;
+    }
+
+    public function addConversation(Conversation $conversation): static
+    {
+        if (!$this->conversations->contains($conversation)) {
+            $this->conversations->add($conversation);
+        }
+
+        return $this;
+    }
+
+    public function removeConversation(Conversation $conversation): static
+    {
+        $this->conversations->removeElement($conversation);
 
         return $this;
     }
