@@ -9,7 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Twit>
  */
-class PostRepository extends ServiceEntityRepository
+class TwitRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -4,15 +4,27 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
-use App\Enum\PostStatus;
-use App\Repository\PostRepository;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Enum\TwitStatus;
+use App\Repository\TwitRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-#[ORM\Entity(repositoryClass: PostRepository::class)]
-#[ApiResource]
-class Twit
+#[ORM\Entity(repositoryClass: TwitRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(),
+        new Put(),
+        new Patch(),
+    ],
+)] class Twit
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -33,8 +45,8 @@ class Twit
     )]
     private ?User $author = null;
 
-    #[ORM\Column(length: 255, enumType: PostStatus::class)]
-    private ?PostStatus $status = null;
+    #[ORM\Column(length: 255, enumType: TwitStatus::class)]
+    private ?TwitStatus $status = TwitStatus::PUBLISHED;
 
     #[ORM\Column(nullable: true)]
     private ?int $parent = null;
@@ -84,12 +96,12 @@ class Twit
         return $this;
     }
 
-    public function getStatus(): ?PostStatus
+    public function getStatus(): ?TwitStatus
     {
         return $this->status;
     }
 
-    public function setStatus(?PostStatus $status): void
+    public function setStatus(?TwitStatus $status): void
     {
         $this->status = $status;
     }

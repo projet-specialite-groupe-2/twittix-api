@@ -4,7 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Twit;
 use App\Entity\User;
-use App\Enum\PostStatus;
+use App\Enum\TwitStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -16,7 +16,7 @@ class TwitFixtures extends Fixture implements DependentFixtureInterface
         // Create a twit published by the first user
         $twit = new Twit();
         $twit->setContent('Hello world!');
-        $twit->setStatus(PostStatus::PUBLISHED);
+        $twit->setStatus(TwitStatus::PUBLISHED);
         $twit->setAuthor($this->getReference(UserFixtures::USER_REFERENCE, User::class));
 
         $manager->persist($twit);
@@ -24,7 +24,7 @@ class TwitFixtures extends Fixture implements DependentFixtureInterface
         // Create a twit archived by the first user
         $twit = new Twit();
         $twit->setContent('Goodbye world!');
-        $twit->setStatus(PostStatus::ARCHIVED);
+        $twit->setStatus(TwitStatus::DELETED);
         $twit->setAuthor($this->getReference(UserFixtures::USER_REFERENCE, User::class));
 
         $manager->persist($twit);

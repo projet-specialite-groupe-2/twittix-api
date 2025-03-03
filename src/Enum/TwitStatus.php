@@ -2,9 +2,8 @@
 
 namespace App\Enum;
 
-enum PostStatus: string
+enum TwitStatus: string
 {
     case PUBLISHED = 'published';
-    case ARCHIVED = 'archived';
     case DELETED = 'deleted';
 }
