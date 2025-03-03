@@ -11,6 +11,8 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\UserRepository;
 use App\State\PostUserStateProcessor;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -86,6 +88,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: false)]
     private bool $banned = false;
+
+    /**
+     * @var Collection<int, Conversation>
+     */
+    #[ORM\ManyToMany(targetEntity: Conversation::class, inversedBy: 'users')]
+    private Collection $conversations;
+
+    public function __construct()
+    {
+        $this->conversations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -262,5 +275,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDeletedAt(?\DateTimeImmutable $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
+    }
+
+    /**
+     * @return Collection<int, Conversation>
+     */
+    public function getConversations(): Collection
+    {
+        return $this->conversations;
+    }
+
+    public function addConversation(Conversation $conversation): static
+    {
+        if (!$this->conversations->contains($conversation)) {
+            $this->conversations->add($conversation);
+        }
+
+        return $this;
+    }
+
+    public function removeConversation(Conversation $conversation): static
+    {
+        $this->conversations->removeElement($conversation);
+
+        return $this;
     }
 }
