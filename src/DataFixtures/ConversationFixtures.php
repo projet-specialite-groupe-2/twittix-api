@@ -10,6 +10,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class ConversationFixtures extends Fixture implements DependentFixtureInterface
 {
+    public const CONVERSATION_REFERENCE = 'conversation';
+
     public function load(ObjectManager $manager): void
     {
         // Create a conversation with the first and second user
@@ -20,6 +22,8 @@ class ConversationFixtures extends Fixture implements DependentFixtureInterface
 
         $manager->persist($conversation);
         $manager->flush();
+
+        $this->addReference(self::CONVERSATION_REFERENCE, $conversation);
     }
 
     public function getDependencies(): array

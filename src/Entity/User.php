@@ -98,10 +98,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Conversation::class, inversedBy: 'users')]
     private Collection $conversations;
 
+    /**
+     * @var Collection<int, Message>
+     */
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'author')]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->twits = new ArrayCollection();
         $this->conversations = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -329,6 +336,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeConversation(Conversation $conversation): static
     {
         $this->conversations->removeElement($conversation);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): static
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->messages->removeElement($message) && $message->getAuthor() === $this) {
+            $message->setAuthor(null);
+        }
 
         return $this;
     }
