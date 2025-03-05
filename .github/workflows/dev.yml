@@ -1,0 +1,68 @@
+name: CI/CD Twittix API
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/ci-cd/#17
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+jobs:
+  composer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, intl, opcache, bcmath
+
+      - name: Install Composer dependencies
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          php composer.phar install
+
+      - name: Save Composer artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: vendor
+          path: vendor/
+
+      - name: Run quality checks
+        run: |
+          php ./vendor/bin/rector process src --dry-run
+          php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots --dry-run
+          php ./vendor/bin/psalm
+          php ./bin/console doctrine:database:create --if-not-exists --env=test
+          php ./bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=test
+          php ./bin/console doctrine:schema:validate --env=test
+          php ./bin/console doctrine:fixtures:load --no-interaction --env=test --group=test
+          php ./bin/phpunit
+
+
+# deploy:
+#     runs-on: ubuntu-latest
+#     needs: test
+#     steps:
+
+#       - name: Deploy via SSH
+#         uses: easingthemes/ssh-deploy@v5.1.0
+#         with:
+#           # Paramètres pour la connexion SSH
+#           SSH_PRIVATE_KEY:
+#           REMOTE_HOST:
+#           REMOTE_USER:
+#           SOURCE:
+#           TARGET:
