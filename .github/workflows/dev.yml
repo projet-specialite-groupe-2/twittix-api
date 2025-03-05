@@ -15,14 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-jobs:
-  composer:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
