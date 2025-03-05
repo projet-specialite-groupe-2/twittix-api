@@ -92,11 +92,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Twit::class, mappedBy: 'author')]
     private Collection $twits;
 
-    public function __construct()
-    {
-        $this->twits = new ArrayCollection();
-    }
-
     /**
      * @var Collection<int, Conversation>
      */
@@ -105,6 +100,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        $this->twits = new ArrayCollection();
         $this->conversations = new ArrayCollection();
     }
 
