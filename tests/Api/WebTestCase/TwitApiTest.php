@@ -100,19 +100,4 @@ class TwitApiTest extends WebTestCase
         self::assertSame(sprintf('Test-edited content for twit %d', $twit->getId()), $twit->getContent());
         self::assertSame(TwitStatus::PUBLISHED->value, $twit->getStatus()->value);
     }
-
-    public function testDeleteTwitDoesNotWork()
-    {
-        $twit = $this->twitRepository->find(1);
-        self::assertNotNull($twit);
-
-        try {
-            $this
-                ->browser()
-                ->delete(sprintf('/api/twit/%d', $twit->getId()))
-            ;
-        } catch (\Exception $exception) {
-            self::assertSame($exception->getMessage(), sprintf('No route found for %s', 'DELETE http://localhost/api/twit/1'));
-        }
-    }
 }

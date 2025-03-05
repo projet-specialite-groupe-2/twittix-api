@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Follow;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -33,11 +34,10 @@ class UserFixtures extends Fixture
 
         $manager->persist($user);
 
-        // Second User basic
         $user2 = new User();
         $user2->setEmail('user2@gmail.com');
-        $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password'));
-        $user2->setBiography('I am a second user');
+        $user2->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user2->setBiography('I am a user2');
         $user2->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $user2->setProfileImgPath('profile.jpg');
         $user2->setUsername('user2');
@@ -46,6 +46,9 @@ class UserFixtures extends Fixture
         $user2->setPrivate(false);
 
         $manager->persist($user2);
+
+        $follow = $this->createFollow($user, $user2);
+        $manager->persist($follow);
 
         // User admin
         $admin = new User();
@@ -80,5 +83,16 @@ class UserFixtures extends Fixture
 
         $this->addReference(self::USER_REFERENCE, $user);
         $this->addReference(self::USER_REFERENCE2, $user2);
+    }
+
+    private function createFollow(User $user1, User $user2): Follow
+    {
+        $user2FollowsUser1 = new Follow();
+        $user2FollowsUser1->setFollower($user2);
+        $user2FollowsUser1->setFollowed($user1);
+        $user1->addFollower($user2FollowsUser1);
+        $user2->addFollowing($user2FollowsUser1);
+
+        return $user2FollowsUser1;
     }
 }
