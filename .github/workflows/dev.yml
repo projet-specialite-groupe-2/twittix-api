@@ -27,7 +27,7 @@ jobs:
           php composer.phar install
 
       - name: Save Composer artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: vendor
           path: vendor/
