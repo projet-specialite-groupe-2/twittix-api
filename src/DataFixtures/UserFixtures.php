@@ -88,8 +88,10 @@ class UserFixtures extends Fixture
     private function createFollow(User $user1, User $user2): Follow
     {
         $user2FollowsUser1 = new Follow();
+        $user2FollowsUser1->setIsAccepted(false);
         $user2FollowsUser1->setFollower($user2);
         $user2FollowsUser1->setFollowed($user1);
+
         $user1->addFollower($user2FollowsUser1);
         $user2->addFollowing($user2FollowsUser1);
 

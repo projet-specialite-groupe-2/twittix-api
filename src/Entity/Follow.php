@@ -6,8 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FollowRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FollowRepository::class)]
 #[ApiResource]
@@ -38,7 +38,7 @@ class Follow
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $deletedAt = null;
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -109,5 +109,4 @@ class Follow
     {
         $this->deletedAt = $deletedAt;
     }
-
 }
