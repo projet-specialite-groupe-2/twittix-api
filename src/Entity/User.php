@@ -338,11 +338,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeFollower(Follow $follower): static
     {
-        if ($this->followers->removeElement($follower)) {
-            // set the owning side to null (unless already changed)
-            if ($follower->getFollower() === $this) {
-                $follower->setFollower(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->followers->removeElement($follower) && $follower->getFollower() === $this) {
+            $follower->setFollower(null);
         }
 
         return $this;
@@ -368,11 +366,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeFollowing(Follow $following): static
     {
-        if ($this->followings->removeElement($following)) {
-            // set the owning side to null (unless already changed)
-            if ($following->getFollowed() === $this) {
-                $following->setFollowed(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->followings->removeElement($following) && $following->getFollowed() === $this) {
+            $following->setFollowed(null);
         }
 
         return $this;

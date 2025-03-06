@@ -7,11 +7,7 @@ use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
 use App\Repository\UserRepository;
 use App\Tests\WebTestCase;
-
-use function PHPUnit\Framework\assertSame;
-
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TwitApiTest extends WebTestCase
 {
