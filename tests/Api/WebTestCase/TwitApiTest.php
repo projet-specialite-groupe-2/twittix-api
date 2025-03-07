@@ -25,7 +25,7 @@ class TwitApiTest extends WebTestCase
     public function testGetTwits()
     {
         $response = $this->browser()->get('/api/twits')->assertStatus(200)->assertJson();
-        $twits = json_decode((string) $response->content(), true);
+        $twits = json_decode($response->content(), true);
         $this->assertNotEmpty($twits);
     }
 
@@ -36,7 +36,7 @@ class TwitApiTest extends WebTestCase
          * @var Twit $twit
          */
         $response = $this->browser()->get(sprintf('/api/twits/%d', $id));
-        $twitResponse = json_decode((string) $response->content(), true);
+        $twitResponse = json_decode($response->content(), true);
         $twit = $this->twitRepository->find($id);
         self::assertNotNull($twit);
         self::assertSame('/api/users/1', $twitResponse['author']);
@@ -63,7 +63,7 @@ class TwitApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        $twitResponse = json_decode((string) $response->content(), true);
+        $twitResponse = json_decode($response->content(), true);
         /**
          * @var Twit $twit
          */
