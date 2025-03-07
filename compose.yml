@@ -18,6 +18,8 @@ services:
     image: nginx:1.27.3-alpine3.20
     expose:
       - 443
+    ports:
+      - "8080:80"
     environment:
       DOMAIN_NAME: default:twittix.local
     volumes:

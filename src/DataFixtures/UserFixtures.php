@@ -11,6 +11,8 @@ class UserFixtures extends Fixture
 {
     public const USER_REFERENCE = 'user';
 
+    public const USER_REFERENCE2 = 'user2';
+
     public function __construct(private readonly UserPasswordHasherInterface $passwordHasher)
     {
     }
@@ -30,6 +32,20 @@ class UserFixtures extends Fixture
         $user->setPrivate(false);
 
         $manager->persist($user);
+
+        // Second User basic
+        $user2 = new User();
+        $user2->setEmail('user2@gmail.com');
+        $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password'));
+        $user2->setBiography('I am a second user');
+        $user2->setBirthdate(new \DateTimeImmutable('2000-01-01'));
+        $user2->setProfileImgPath('profile.jpg');
+        $user2->setUsername('user2');
+        $user2->setActive(true);
+        $user2->setBanned(false);
+        $user2->setPrivate(false);
+
+        $manager->persist($user2);
 
         // User admin
         $admin = new User();
@@ -63,5 +79,6 @@ class UserFixtures extends Fixture
         $manager->flush();
 
         $this->addReference(self::USER_REFERENCE, $user);
+        $this->addReference(self::USER_REFERENCE2, $user2);
     }
 }
