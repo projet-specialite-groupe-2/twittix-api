@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Like;
 use App\Entity\Twit;
 use App\Entity\User;
 use App\Enum\TwitStatus;
@@ -20,6 +21,12 @@ class TwitFixtures extends Fixture implements DependentFixtureInterface
         $twit->setAuthor($this->getReference(UserFixtures::USER_REFERENCE, User::class));
 
         $manager->persist($twit);
+
+        $like = new Like();
+        $like->setTwit($twit);
+        $like->setAuthor($this->getReference(UserFixtures::USER_REFERENCE2, User::class));
+
+        $manager->persist($like);
 
         // Create a twit archived by the first user
         $twit = new Twit();
