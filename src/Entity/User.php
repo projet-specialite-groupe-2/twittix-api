@@ -104,11 +104,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'author')]
     private Collection $messages;
 
+    /**
+     * @var Collection<int, Like>
+     */
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'author')]
+    private Collection $likes;
+
     public function __construct()
     {
         $this->twits = new ArrayCollection();
         $this->conversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -363,6 +370,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // set the owning side to null (unless already changed)
         if ($this->messages->removeElement($message) && $message->getAuthor() === $this) {
             $message->setAuthor(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Like>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): static
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes->add($like);
+            $like->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): static
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->likes->removeElement($like) && $like->getAuthor() === $this) {
+            $like->setAuthor(null);
         }
 
         return $this;
