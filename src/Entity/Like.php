@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
         new Post(),
         new Delete(),
     ],
-)]class Like
+)] class Like
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

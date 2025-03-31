@@ -3,25 +3,17 @@
 namespace App\Tests\Api\WebTestCase;
 
 use App\Entity\Like;
-use App\Entity\Twit;
-use App\Entity\User;
 use App\Repository\LikeRepository;
-use App\Repository\TwitRepository;
-use App\Repository\UserRepository;
 use App\Tests\WebTestCase;
 
 class LikeApiTest extends WebTestCase
 {
-    private readonly UserRepository $userRepository;
     private readonly LikeRepository $likeRepository;
-    private readonly TwitRepository $twitRepository;
 
     public function __construct(string $name)
     {
         parent::__construct($name);
-        $this->userRepository = $this->getContainer()->get(UserRepository::class);
         $this->likeRepository = $this->getContainer()->get(LikeRepository::class);
-        $this->twitRepository = $this->getContainer()->get(TwitRepository::class);
     }
 
     public function testGetLikes()
@@ -62,7 +54,7 @@ class LikeApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        $likeResponse = json_decode($response->content(), true);
+        json_decode($response->content(), true);
         $like = $this->likeRepository->find(2);
         self::assertNotNull($like);
     }

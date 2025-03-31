@@ -18,7 +18,7 @@ class LikeRepository extends ServiceEntityRepository
         parent::__construct($registry, Like::class);
     }
 
-    public function findByAuthorAndTwit(User $author, Twit $twit): array
+    public function findByAuthorAndTwit(User $author, Twit $twit): ?Like
     {
         return $this->createQueryBuilder('l')
             ->andWhere('l.author = :author')
@@ -26,6 +26,7 @@ class LikeRepository extends ServiceEntityRepository
             ->setParameter('author', $author)
             ->setParameter('twit', $twit)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult()
+        ;
     }
 }
