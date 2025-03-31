@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\Api\TwitController;
 use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,6 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ApiResource(
     operations: [
         new GetCollection(),
+        new Get(controller: TwitController::class, name: 'twits_get_user'),
         new Get(),
         new Post(),
         new Put(),

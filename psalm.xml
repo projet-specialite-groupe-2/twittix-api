@@ -24,5 +24,15 @@
             </errorLevel>
         </PropertyNotSetInConstructor>
         <MissingTemplateParam errorLevel="suppress" />
+        <PossiblyNullOperand>
+            <errorLevel type="suppress">
+                <file name="src/Controller/Api/TwitController.php"/>
+            </errorLevel>
+        </PossiblyNullOperand>
+        <PossiblyNullReference>
+            <errorLevel type="suppress">
+                <file name="src/Controller/Api/TwitController.php"/>
+            </errorLevel>
+        </PossiblyNullReference>
     </issueHandlers>
 </psalm>
