@@ -12,6 +12,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class TwitFixtures extends Fixture implements DependentFixtureInterface
 {
+    public const TWIT_REFERENCE = 'twit';
+
     public function load(ObjectManager $manager): void
     {
         // Create a twit published by the first user
@@ -36,6 +38,8 @@ class TwitFixtures extends Fixture implements DependentFixtureInterface
 
         $manager->persist($twit);
         $manager->flush();
+
+        $this->addReference(self::TWIT_REFERENCE, $twit);
     }
 
     public function getDependencies(): array

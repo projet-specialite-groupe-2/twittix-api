@@ -124,6 +124,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'author')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, Repost>
+     */
+    #[ORM\OneToMany(targetEntity: Repost::class, mappedBy: 'author')]
+    private Collection $reposts;
+
     public function __construct()
     {
         $this->twits = new ArrayCollection();
@@ -131,6 +137,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->followings = new ArrayCollection();
         $this->conversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->reposts = new ArrayCollection();
         $this->likes = new ArrayCollection();
     }
 
@@ -470,6 +477,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // set the owning side to null (unless already changed)
         if ($this->likes->removeElement($like) && $like->getAuthor() === $this) {
             $like->setAuthor(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Repost>
+     */
+    public function getReposts(): Collection
+    {
+        return $this->reposts;
+    }
+
+    public function addRepost(Repost $repost): static
+    {
+        if (!$this->reposts->contains($repost)) {
+            $this->reposts->add($repost);
+            $repost->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRepost(Repost $repost): static
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->reposts->removeElement($repost) && $repost->getAuthor() === $this) {
+            $repost->setAuthor(null);
         }
 
         return $this;
