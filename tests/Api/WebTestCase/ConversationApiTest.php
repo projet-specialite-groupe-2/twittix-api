@@ -4,26 +4,23 @@ namespace App\Tests\Api\WebTestCase;
 
 use App\Entity\Conversation;
 use App\Repository\ConversationRepository;
-use App\Repository\MessageRepository;
 use App\Tests\WebTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 class ConversationApiTest extends WebTestCase
 {
     private readonly ConversationRepository $conversationRepository;
-    private readonly MessageRepository $messageRepository;
 
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->conversationRepository = $this->getContainer()->get(ConversationRepository::class);
-        $this->messageRepository = $this->getContainer()->get(MessageRepository::class);
     }
 
     public function testGetConversations()
     {
         $response = $this->browser()->get('/api/conversations')->assertStatus(200)->assertJson();
-        $conversations = json_decode((string) $response->content(), true);
+        $conversations = json_decode($response->content(), true);
         $this->assertNotEmpty($conversations);
     }
 
@@ -34,7 +31,7 @@ class ConversationApiTest extends WebTestCase
          * @var Conversation $conversation
          */
         $response = $this->browser()->get(sprintf('/api/conversations/%d', $id));
-        $conversationResponse = json_decode((string) $response->content(), true);
+        $conversationResponse = json_decode($response->content(), true);
         $conversation = $this->conversationRepository->find($id);
         self::assertNotNull($conversation);
         self::assertSame($conversation->getTitle(), $conversationResponse['title']);
@@ -49,7 +46,7 @@ class ConversationApiTest extends WebTestCase
             ->post('/api/conversations', [
                 'json' => [
                     'title' => 'My newly created Conversation',
-                    'users' => ['/api/users/1', '/api/users/2']
+                    'users' => ['/api/users/1', '/api/users/2'],
                 ],
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
@@ -58,9 +55,9 @@ class ConversationApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        $conversationResponse = json_decode((string) $response->content(), true);
+        $conversationResponse = json_decode($response->content(), true);
         /**
-         * @var conversation $conversation
+         * @var Conversation $conversation
          */
         $conversation = $this->conversationRepository->find($conversationResponse['id']);
         self::assertNotNull($conversation);
@@ -75,7 +72,7 @@ class ConversationApiTest extends WebTestCase
             ->post('/api/conversations', [
                 'json' => [
                     'title' => 'My newly created Conversation',
-                    'users' => []
+                    'users' => [],
                 ],
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
@@ -95,7 +92,7 @@ class ConversationApiTest extends WebTestCase
         $this->browser()
 //            ->actingAs($apiconversation) // TODO: Use when authentication is available
 //            ->assertAuthenticated($apiconversation) // TODO: Use when authentication is available
-            ->post(sprintf('/api/messages'), [
+            ->post('/api/messages', [
                 'json' => [
                     'content' => sprintf('Test-Created message for conversation %d', $conversation->getId()),
                     'conversation' => '/api/conversations/1',
