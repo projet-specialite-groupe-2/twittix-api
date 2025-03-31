@@ -5,6 +5,7 @@ namespace App\Tests\Api\WebTestCase;
 use App\Entity\repost;
 use App\Repository\RepostRepository;
 use App\Tests\WebTestCase;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 class RepostApiTest extends WebTestCase
 {
@@ -27,7 +28,7 @@ class RepostApiTest extends WebTestCase
     {
         $id = 1;
         /**
-         * @var repost $repost
+         * @var Repost $repost
          */
         $response = $this->browser()->get(sprintf('/api/reposts/%d', $id));
         $repostResponse = json_decode($response->content(), true);
@@ -47,6 +48,7 @@ class RepostApiTest extends WebTestCase
                 'json' => [
                     'author' => '/api/users/1',
                     'twit' => '/api/twits/1',
+                    'comment' => 'This twit was very nice',
                 ],
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
@@ -60,7 +62,33 @@ class RepostApiTest extends WebTestCase
         self::assertNotNull($repost);
     }
 
-    public function testDeleterepost()
+    #[RunInSeparateProcess]
+    public function testPatchFollow(): void
+    {
+        $repost = $this->repostRepository->find(1);
+        self::assertSame("Repost this twit very interesting!", $repost->getComment());
+
+        $this->browser()
+//            ->actingAs($apiUser) // TODO: Use when authentication is available
+//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->patch(sprintf('/api/reposts/%d', $repost->getId()), [
+                'json' => [
+                    'comment' => "I needed to edit this !",
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/merge-patch+json',
+                ],
+            ])
+            ->assertStatus(200)
+            ->assertJson()
+        ;
+
+        $repostPatch = $this->repostRepository->find(1);
+        self::assertNotNull($repostPatch);
+        self::assertSame("I needed to edit this !", $repostPatch->getComment());
+    }
+
+    public function testDeleteRepost()
     {
         $repost = $this->repostRepository->find(1);
         $author = $repost->getAuthor();
