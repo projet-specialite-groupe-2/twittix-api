@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,12 +17,15 @@ class Message
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[ApiProperty(required: true)]
     private ?string $content = null;
 
     #[ORM\ManyToOne(inversedBy: 'messages')]
+    #[ApiProperty(required: true)]
     private ?Conversation $conversation = null;
 
     #[ORM\ManyToOne(inversedBy: 'messages')]
+    #[ApiProperty(required: true)]
     private ?User $author = null;
 
     public function getId(): ?int

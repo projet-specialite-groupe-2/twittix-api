@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ConversationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,6 +22,7 @@ class Conversation
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[ApiProperty(required: true)]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
@@ -35,6 +37,7 @@ class Conversation
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'conversations')]
     #[Assert\Count(min: 2)]
+    #[ApiProperty(required: true)]
     private Collection $users;
 
     /**
