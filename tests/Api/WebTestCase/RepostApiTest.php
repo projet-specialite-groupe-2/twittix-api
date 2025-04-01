@@ -28,7 +28,7 @@ class RepostApiTest extends WebTestCase
     {
         $id = 1;
         /**
-         * @var Repost $repost
+         * @var repost $repost
          */
         $response = $this->browser()->get(sprintf('/api/reposts/%d', $id));
         $repostResponse = json_decode($response->content(), true);
@@ -63,17 +63,20 @@ class RepostApiTest extends WebTestCase
     }
 
     #[RunInSeparateProcess]
-    public function testPatchFollow(): void
+    public function testPatchRepost(): void
     {
         $repost = $this->repostRepository->find(1);
-        self::assertSame("Repost this twit very interesting!", $repost->getComment());
-
+        self::assertSame('Repost this twit very interesting!', $repost->getComment());
+        self::assertSame('/api/users/2', '/api/users/'.$repost->getAuthor()->getId());
+        self::assertSame('/api/twits/2', '/api/twits/'.$repost->getTwit()->getId());
         $this->browser()
 //            ->actingAs($apiUser) // TODO: Use when authentication is available
 //            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
             ->patch(sprintf('/api/reposts/%d', $repost->getId()), [
                 'json' => [
-                    'comment' => "I needed to edit this !",
+                    'comment' => 'I needed to edit this !',
+                    'twit' => '/api/twits/1', // this should stay as /api/twits/2
+                    'author' => '/api/users/1', // this should stay as /api/authors/2
                 ],
                 'headers' => [
                     'Content-Type' => 'application/merge-patch+json',
@@ -85,7 +88,9 @@ class RepostApiTest extends WebTestCase
 
         $repostPatch = $this->repostRepository->find(1);
         self::assertNotNull($repostPatch);
-        self::assertSame("I needed to edit this !", $repostPatch->getComment());
+        self::assertSame('I needed to edit this !', $repostPatch->getComment());
+        self::assertSame('/api/users/2', '/api/users/'.$repostPatch->getAuthor()->getId());
+        self::assertSame('/api/twits/2', '/api/twits/'.$repostPatch->getTwit()->getId());
     }
 
     public function testDeleteRepost()
