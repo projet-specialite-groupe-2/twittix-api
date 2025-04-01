@@ -63,12 +63,15 @@ jobs:
 
   deploy:
 
-  - name: Checkout repository
-    uses: actions/checkout@v3
+
 
     runs-on: ubuntu-latest
     needs: test
     steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
       - name: Deploy via SSH
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
