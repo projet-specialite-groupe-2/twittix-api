@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -53,9 +54,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\Column(length: 180)]
+    #[ApiProperty(required: true)]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[ApiProperty(required: true)]
     private ?string $password = null;
 
     /**

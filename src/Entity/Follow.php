@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FollowRepository;
 use Doctrine\DBAL\Types\Types;
@@ -23,9 +24,11 @@ class Follow
 
     #[ORM\ManyToOne(inversedBy: 'followings')]
     #[Assert\NotEqualTo(propertyPath: 'followed', message: 'A user cannot follow themselves.')]
+    #[ApiProperty(required: true)]
     private ?User $follower = null;
 
     #[ORM\ManyToOne(inversedBy: 'followers')]
+    #[ApiProperty(required: true)]
     private ?User $followed = null;
 
     #[Gedmo\Timestampable(on: 'create')]

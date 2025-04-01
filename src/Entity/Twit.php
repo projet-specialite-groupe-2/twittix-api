@@ -34,11 +34,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[ApiProperty(required: true)]
     private ?string $content = null;
 
     #[ORM\ManyToOne(inversedBy: 'twits')]
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(
+        required: true,
         openapiContext: [
             'example' => '/api/users/1',
             'description' => "IRI (identifiant de ressource) de l'auteur du post",
