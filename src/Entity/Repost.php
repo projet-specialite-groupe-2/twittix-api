@@ -8,9 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\DTO\RepostPatchDTO;
 use App\Repository\RepostRepository;
-use App\State\PatchRepostStateProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -22,15 +20,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new GetCollection(),
         new Get(),
         new Patch(
-            uriTemplate: '/reposts/{id}',
-            input: RepostPatchDTO::class,
-            processor: PatchRepostStateProcessor::class,
+            normalizationContext: ['groups' => ['repost:read']],
+            denormalizationContext: ['groups' => ['repost:write']],
         ),
         new Post(),
         new Delete(),
     ],
-    normalizationContext: ['groups' => ['repost:read']],
-    denormalizationContext: ['groups' => ['repost:write', 'repost:patch']],
 )]
 class Repost
 {
@@ -42,16 +37,16 @@ class Repost
 
     #[ORM\ManyToOne(inversedBy: 'reposts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['repost:read', 'repost:write'])]
+    #[Groups(['repost:read'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'reposts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['repost:read', 'repost:write'])]
+    #[Groups(['repost:read'])]
     private ?Twit $twit = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['repost:read', 'repost:write', 'repost:patch'])]
+    #[Groups(['repost:read', 'repost:write'])]
     private ?string $comment = null;
 
     #[Gedmo\Timestampable(on: 'create')]
