@@ -19,6 +19,7 @@ jobs:
         env:
           POSTGRES_USER: twittix
           POSTGRES_PASSWORD: twittix
+          POSTGRES_DB: twittix
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -55,18 +56,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # - name: Connect to PostgreSQL
-      #   # Runs a script that creates a PostgreSQL table, populates
-      #   # the table with data, and then retrieves the data
-      #   run: node client.js
-      #   # Environment variables used by the `client.js` script to create
-      #   # a new PostgreSQL table.
-      #   env:
-      #     # The hostname used to communicate with the PostgreSQL service container
-      #     POSTGRES_HOST: postgres
-      #     # The default PostgreSQL port
-      #     POSTGRES_PORT: 5432
-        
       - name: Run quality checks
         run: |
           php ./vendor/bin/rector process src --dry-run --verbose
