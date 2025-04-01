@@ -17,10 +17,13 @@ jobs:
       - name: Set up Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install docker-compose -y    
+          sudo apt-get install docker-compose -y  
+
+      - name: Build Docker Compose services
+        run: docker-compose build  
 
       - name: Run Docker Compose services
-        run: docker compose up -d
+        run: docker-compose up -d
 
       - name: Checkout repository
         uses: actions/checkout@v3
