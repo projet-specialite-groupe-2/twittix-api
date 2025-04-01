@@ -39,6 +39,8 @@
         "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.0",
         "symfony/maker-bundle": "^1.62",
+        "symfony/stopwatch": "7.2.*",
+        "symfony/web-profiler-bundle": "7.2.*",
         "vimeo/psalm": "^6.4",
         "zenstruck/browser": "^1.9"
     },

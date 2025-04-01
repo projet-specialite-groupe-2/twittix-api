@@ -108,4 +108,23 @@ class UserApiTest extends WebTestCase
         // Will fail if softDelete is implemented
         self::assertNull($user);
     }
+
+    public function testUserValidEndpoint()
+    {
+        $user = $this->userRepository->findByEmail('user@gmail.com');
+
+        $response = $this
+            ->browser()
+            ->post('/api/users/active', [
+                'json' => [
+                    'email' => 'user@gmail.com',
+                    'password' => 'password',
+                ],
+            ])
+            ->assertStatus(200)
+        ;
+        $userResponse = json_decode($response->content(), true);
+
+        self::assertSame($userResponse['result'], $user->isActive());
+    }
 }

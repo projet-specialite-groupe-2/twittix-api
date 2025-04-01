@@ -10,6 +10,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use ApiPlatform\OpenApi\Model\Response;
+use App\Controller\Api\UserController;
 use App\Repository\UserRepository;
 use App\State\PostUserStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -30,6 +34,49 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(),
         new Patch(),
     ],
+)]
+#[Post(
+    uriTemplate: '/users/active',
+    controller: UserController::class,
+    openapi: new Operation(
+        responses: [
+            '200' => new Response(
+                description: 'User is active',
+                content: new \ArrayObject([
+                    'application/json' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'active' => ['type' => 'boolean'],
+                            ],
+                        ],
+                    ],
+                ]),
+            ),
+            '401' => new Response(
+                description: 'Invalid credentials',
+            ),
+        ],
+        summary: 'Verify if a user is active',
+        requestBody: new RequestBody(
+            content: new \ArrayObject([
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'email' => ['type' => 'string'],
+                            'password' => ['type' => 'string'],
+                        ],
+                    ],
+                    'example' => [
+                        'email' => 'user@example.com',
+                        'paswword' => 'Motdepasse123',
+                    ],
+                ],
+            ]),
+        ),
+    ),
+    name: 'post_user_active',
 )]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
