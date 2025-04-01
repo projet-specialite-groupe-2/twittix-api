@@ -35,7 +35,7 @@ jobs:
       - name: Run quality checks
         run: |
           php ./vendor/bin/rector process src --dry-run --verbose
-          php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots --dry-run
+          php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots
           php ./vendor/bin/psalm
           php ./bin/console doctrine:database:create --if-not-exists --env=test
           php ./bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=test
