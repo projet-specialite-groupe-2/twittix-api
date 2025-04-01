@@ -10,28 +10,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_USER: twittix
-          POSTGRES_PASSWORD: twittix
-          POSTGRES_DB: twittix
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-
     steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-compose -y    
+
+      - name: Run Docker Compose services
+        run: docker-compose up -d
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -42,30 +31,30 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, intl, opcache, bcmath
 
-      - name: Install Composer dependencies
-        run: |
-          curl -sS https://getcomposer.org/installer | php
-          php composer.phar install
+      # - name: Install Composer dependencies
+      #   run: |
+      #     curl -sS https://getcomposer.org/installer | php
+      #     php composer.phar install
 
-      - name: Save Composer artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: vendor
-          path: vendor/
+      # - name: Save Composer artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: vendor
+      #     path: vendor/
       
-      - name: Install dependencies
-        run: npm ci
-
       - name: Run quality checks
         run: |
-          php ./vendor/bin/rector process src --dry-run --verbose
-          php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots
-          php ./vendor/bin/psalm
-          php ./bin/console doctrine:database:create --if-not-exists --env=test
-          php ./bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=test
-          php ./bin/console doctrine:schema:validate --env=test
-          php ./bin/console doctrine:fixtures:load --no-interaction
-          php ./bin/phpunit
+          docker compose exec php sh -c "
+            composer install && \
+            php ./vendor/bin/rector process src --dry-run --verbose && \
+            php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots && \
+            php ./vendor/bin/psalm && \
+            php ./bin/console doctrine:database:create --if-not-exists --env=test && \
+            php ./bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=test && \
+            php ./bin/console doctrine:schema:validate --env=test && \
+            php ./bin/console doctrine:fixtures:load --no-interaction && \
+            php ./bin/phpunit
+          "    
 
   deploy:
     runs-on: ubuntu-latest
