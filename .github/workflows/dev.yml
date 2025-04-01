@@ -54,7 +54,7 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Connect to PostgreSQL
         # Runs a script that creates a PostgreSQL table, populates
         # the table with data, and then retrieves the data
@@ -63,7 +63,7 @@ jobs:
         # a new PostgreSQL table.
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: postgre
+          POSTGRES_HOST: postgres
           # The default PostgreSQL port
           POSTGRES_PORT: 5432
         
