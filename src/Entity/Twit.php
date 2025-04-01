@@ -45,7 +45,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
             'example' => '/api/users/1',
             'description' => "IRI (identifiant de ressource) de l'auteur du post",
             'type' => 'string',
-        ]
+        ],
     )]
     private ?User $author = null;
 
