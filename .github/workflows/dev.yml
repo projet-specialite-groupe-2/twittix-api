@@ -45,7 +45,6 @@ jobs:
       #   with:
       #     name: vendor
       #     path: vendor/- name: Checkout repository
-        uses: actions/checkout@v3
       
       - name: Run quality checks
         run: |
