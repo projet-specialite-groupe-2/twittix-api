@@ -15,15 +15,14 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use ApiPlatform\OpenApi\Model\Response;
-use App\Controller\Api\UserController;
+use App\Controller\Api\UserControllerActive;
+use App\Controller\Api\UserControllerRegister;
 use App\Repository\UserRepository;
-use App\State\PostUserStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,15 +30,50 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(processor: PostUserStateProcessor::class),
         new Put(),
         new Delete(),
         new Patch(),
     ],
 )]
 #[Post(
+    uriTemplate: '/users/register',
+    controller: UserControllerRegister::class,
+    openapi: new Operation(
+        responses: [
+            '201' => new Response(
+                description: 'User registered successfully',
+            ),
+            '400' => new Response(
+                description: 'Invalid data provided',
+            ),
+            '409' => new Response(
+                description: 'User already exists',
+            ),
+        ],
+        summary: 'Register a new user',
+        requestBody: new RequestBody(
+            content: new \ArrayObject([
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'username' => ['type' => 'string'],
+                            'birthdate' => ['type' => 'string', 'format' => 'date'],
+                        ],
+                    ],
+                    'example' => [
+                        'username' => 'newuser',
+                        'birthdate' => '2000-01-01',
+                    ],
+                ],
+            ]),
+        ),
+    ),
+    name: 'post_user_register',
+)]
+#[Post(
     uriTemplate: '/users/active',
-    controller: UserController::class,
+    controller: UserControllerActive::class,
     openapi: new Operation(
         responses: [
             '200' => new Response(
@@ -67,12 +101,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                         'type' => 'object',
                         'properties' => [
                             'email' => ['type' => 'string'],
-                            'password' => ['type' => 'string'],
                         ],
                     ],
                     'example' => [
                         'email' => 'user@example.com',
-                        'password' => 'Motdepasse123',
                     ],
                 ],
             ]),
@@ -85,7 +117,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -107,10 +139,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ApiProperty(required: true)]
     #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?string $email = null;
-
-    #[ORM\Column]
-    #[ApiProperty(required: true)]
-    private ?string $password = null;
 
     /**
      * @var list<string> The user roles
@@ -290,19 +318,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfileImgPath(string $profileImgPath): static
     {
         $this->profileImgPath = $profileImgPath;
-
-        return $this;
-    }
-
-    #[\Override]
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
 
         return $this;
     }
