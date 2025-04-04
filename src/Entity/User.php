@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Asset\Exception\LogicException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -30,6 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(),
         new Patch(),
     ],
+    security: "is_granted('USER_VIEW', object)",
+    securityPostDenormalize: "is_granted('USER_EDIT', object)"
 )]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -127,6 +130,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'author')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'blockers')]
+    #[ORM\JoinTable(name: 'user_blocks')]
+    #[ORM\JoinColumn(name: 'blocker_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'blocked_id', referencedColumnName: 'id')]
+    private Collection $blockeds;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'blockeds')]
+    private Collection $blockers;
+
     public function __construct()
     {
         $this->twits = new ArrayCollection();
@@ -135,6 +153,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->conversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->blockeds = new ArrayCollection();
+        $this->blockers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -473,6 +493,90 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // set the owning side to null (unless already changed)
         if ($this->likes->removeElement($like) && $like->getAuthor() === $this) {
             $like->setAuthor(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getBlockeds(): Collection
+    {
+        return $this->blockeds;
+    }
+
+    // Todo: check if removal breaks Doctrine or not
+    public function addBlocked(self $blocked): static
+    {
+        if (!$this->blockeds->contains($blocked)) {
+            $this->blockeds->add($blocked);
+        }
+
+        return $this;
+    }
+    // Todo: check if removal breaks Doctrine or not
+
+    public function removeBlocked(self $blocked): static
+    {
+        $this->blockeds->removeElement($blocked);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    // Todo: check if removal breaks Doctrine or not
+    public function getBlockers(): Collection
+    {
+        return $this->blockers;
+    }
+
+    // Todo: check if removal breaks Doctrine or not
+    public function addBlocker(self $blocker): static
+    {
+        if (!$this->blockers->contains($blocker)) {
+            $this->blockers->add($blocker);
+            $blocker->addBlocked($this);
+        }
+
+        return $this;
+    }
+
+    // Todo: check if removal breaks Doctrine or not
+    public function removeBlocker(self $blocker): static
+    {
+        if ($this->blockers->removeElement($blocker)) {
+            $blocker->removeBlocked($this);
+        }
+
+        return $this;
+    }
+
+    public function blockUser(User $userToBlock): static
+    {
+        if($userToBlock === $this){
+            throw new LogicException("You can't block yourself");
+        }
+
+        if (!$this->getBlockeds()->contains($userToBlock) && !$userToBlock->getBlockers()->contains($this)) {
+            $this->getBlockeds()->add($userToBlock);
+            $userToBlock->getBlockers()->add($this);
+        }
+
+        return $this;
+    }
+
+    public function unblockUser(User $userToUnblock): static
+    {
+        if($userToUnblock === $this){
+            throw new LogicException("You can't unblock yourself");
+        }
+
+        if ($this->getBlockeds()->contains($userToUnblock) && $userToUnblock->getBlockers()->contains($this)) {
+            $this->getBlockeds()->removeElement($userToUnblock);
+            $userToUnblock->getBlockers()->removeElement($this);
         }
 
         return $this;

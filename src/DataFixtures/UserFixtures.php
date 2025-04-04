@@ -79,6 +79,21 @@ class UserFixtures extends Fixture
 
         $manager->persist($userDelete);
 
+        // User for testing blocks
+        $userBlocked = new User();
+        $userBlocked->setEmail('user-blocked@gmail.com');
+        $userBlocked->setPassword($this->passwordHasher->hashPassword($userBlocked, 'password'));
+        $userBlocked->setBiography('I am a user for testing blocks');
+        $userBlocked->setBirthdate(new \DateTimeImmutable('2000-01-01'));
+        $userBlocked->setProfileImgPath('profile.jpg');
+        $userBlocked->setUsername('user-blocks');
+        $userBlocked->setActive(true);
+        $userBlocked->setBanned(false);
+        $userBlocked->setPrivate(false);
+        $user->blockUser($userBlocked);
+
+        $manager->persist($userBlocked);
+
         $manager->flush();
 
         $this->addReference(self::USER_REFERENCE, $user);
