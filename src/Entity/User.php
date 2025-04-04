@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -70,7 +72,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ],
                     'example' => [
                         'email' => 'user@example.com',
-                        'paswword' => 'Motdepasse123',
+                        'password' => 'Motdepasse123',
                     ],
                 ],
             ]),
@@ -81,6 +83,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -102,6 +105,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[ApiProperty(required: true)]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -115,6 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[ORM\Column(length: 20, nullable: true)] // Must be set after account creation but not on first POST so user can be onboarded
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?string $username = null;
 
     #[ORM\Column(length: 200, nullable: true)]
@@ -131,7 +136,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $private = false;
 
     #[ORM\Column(nullable: false)]
-    private bool $active = true;
+    private bool $active = false;
 
     #[ORM\Column(nullable: false)]
     private bool $banned = false;
