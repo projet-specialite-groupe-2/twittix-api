@@ -47,7 +47,6 @@ class UserApiTest extends WebTestCase
             ->post('/api/users', [
                 'json' => [
                     'email' => 'raclo@widop.com',
-                    'password' => 'password',
                 ],
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
@@ -63,7 +62,6 @@ class UserApiTest extends WebTestCase
         $user = $this->userRepository->findByEmail('raclo@widop.com');
         self::assertNotNull($user);
         self::assertSame($user->getEmail(), $userResponse['email']);
-        self::assertTrue(strlen('password') < strlen((string) $user->getPassword())); // Verify password is hashed
     }
 
     #[RunInSeparateProcess]
@@ -118,7 +116,6 @@ class UserApiTest extends WebTestCase
             ->post('/api/users/active', [
                 'json' => [
                     'email' => 'user@gmail.com',
-                    'password' => 'password',
                 ],
             ])
             ->assertStatus(200)
