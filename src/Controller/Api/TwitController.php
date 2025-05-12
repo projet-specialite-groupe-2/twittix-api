@@ -32,8 +32,14 @@ class TwitController extends AbstractController
         ],
         methods: ['GET'],
     )]
-    public function __invoke(User $user): JsonResponse
+    public function __invoke(): JsonResponse
     {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'Unauthorized'], 401);
+        }
+
         $twits = $this->twitRepository->findAll();
 
         /** @var Twit $twit */
