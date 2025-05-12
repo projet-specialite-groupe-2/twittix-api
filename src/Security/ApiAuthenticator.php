@@ -22,16 +22,52 @@ class ApiAuthenticator extends AbstractAuthenticator
         private readonly HttpClientInterface $authenticationClient,
         #[Autowire(env: 'AUTH_API_URL')]
         private readonly string $authenticationUrl,
+        #[Autowire(env: 'AUTH_API_KEY')]
+        private readonly string $apiKey,
     ) {
     }
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has('Authorization');
+        if ($request->headers->has('Authorization')) {
+            return true;
+        }
+
+        return $request->headers->has('X-Api-Key');
     }
 
     public function authenticate(Request $request): SelfValidatingPassport
     {
+        $authSource = $request->headers->get('X-Api-Key');
+
+        if ($authSource === $this->apiKey) {
+            if ($request->getMethod() === 'GET') {
+                /** @var string $userEmail */
+                $userEmail = $request->query->get('email');
+
+                if (empty($userEmail)) {
+                    throw new AuthenticationException('Email is required from AuthAPI');
+                }
+            } else {
+                /** @var array<string,string> $data */
+                $data = json_decode($request->getContent(), true);
+
+                if (!isset($data['email'])) {
+                    throw new AuthenticationException('Email is required from AuthAPI');
+                }
+
+                $userEmail = $data['email'];
+            }
+
+            $user = $this->userRepository->findByEmail($userEmail);
+
+            if (!$user instanceof User) {
+                throw new AuthenticationException('User not found');
+            }
+
+            return new SelfValidatingPassport(new UserBadge($userEmail));
+        }
+
         $authHeader = $request->headers->get('Authorization');
 
         if (!preg_match('/Bearer\s(\S+)/', (string) $authHeader, $matches)) {
@@ -56,7 +92,6 @@ class ApiAuthenticator extends AbstractAuthenticator
 
             /** @var string $userEmail */
             $userEmail = $data['email'];
-
             $user = $this->userRepository->findByEmail($userEmail);
 
             if (!$user instanceof User) {
