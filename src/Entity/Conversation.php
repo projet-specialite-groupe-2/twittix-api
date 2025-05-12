@@ -4,17 +4,31 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\Controller\Api\UserCollectionController;
 use App\Repository\ConversationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ConversationRepository::class)]
-#[ApiResource]
-class Conversation
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Patch(),
+        new Post(),
+        new Delete(),
+    ],
+)]class Conversation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -38,6 +52,7 @@ class Conversation
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'conversations')]
     #[Assert\Count(min: 2)]
     #[ApiProperty(required: true)]
+    #[Groups('conversation:read')]
     private Collection $users;
 
     /**

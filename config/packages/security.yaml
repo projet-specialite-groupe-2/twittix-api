@@ -25,5 +25,5 @@ security:
             custom_authenticators:
                 - App\Security\ApiAuthenticator
 
-    access_control:
-        - { path: ^/api, roles: ROLE_USER }
+#    access_control:
+#        - { path: ^/api, roles: ROLE_USER }
