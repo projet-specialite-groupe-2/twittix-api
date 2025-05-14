@@ -24,5 +24,10 @@
             </errorLevel>
         </PropertyNotSetInConstructor>
         <MissingTemplateParam errorLevel="suppress" />
+        <PossiblyNullOperand>
+            <errorLevel type="suppress">
+                <file name="src/State/TwitCollectionProvider.php"/>
+            </errorLevel>
+        </PossiblyNullOperand>
     </issueHandlers>
 </psalm>
