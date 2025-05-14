@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Put;
 use App\Controller\Api\TwitController;
 use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
+use App\State\TwitCollectionProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -22,11 +23,15 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ApiResource(
     operations: [
         new GetCollection(),
-        new Get(controller: TwitController::class, name: 'twits_get_user'),
         new Get(),
         new Post(),
         new Put(),
         new Patch(),
+        new GetCollection(
+            uriTemplate: '/twits/all',
+            name: 'get_twits_collection_custom',
+            provider: TwitCollectionProvider::class,
+        )
     ],
 )] class Twit
 {
