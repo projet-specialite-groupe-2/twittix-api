@@ -24,6 +24,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -122,22 +123,27 @@ class User implements UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('conversation:messages:read')]
     private ?int $id = null;
 
     #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups('conversation:messages:read')]
     private \DateTimeImmutable $createdAt;
 
     #[Gedmo\Timestampable(on: 'update')]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups('conversation:messages:read')]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups('conversation:messages:read')]
     private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\Column(length: 180)]
     #[ApiProperty(required: true)]
     #[ApiFilter(SearchFilter::class, strategy: 'exact')]
+    #[Groups('conversation:messages:read')]
     private ?string $email = null;
 
     /**
@@ -148,25 +154,32 @@ class User implements UserInterface
 
     #[ORM\Column(length: 20, nullable: true)] // Must be set after account creation but not on first POST so user can be onboarded
     #[ApiFilter(SearchFilter::class, strategy: 'exact')]
+    #[Groups(['conversation:messages:read', 'user:conversations:read'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 200, nullable: true)]
+    #[Groups('conversation:messages:read')]
     private ?string $biography = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)] // Must be set after account creation but not on first POST so user can be onboarded
     #[Assert\LessThanOrEqual(value: '-13 years', message: 'You must be at least 13 years old.')]
+    #[Groups('conversation:messages:read')]
     private ?\DateTimeInterface $birthdate = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups('conversation:messages:read')]
     private ?string $profileImgPath = 'profile_image_path_base.jpg';
 
     #[ORM\Column(nullable: false)]
+    #[Groups('conversation:messages:read')]
     private bool $private = false;
 
     #[ORM\Column(nullable: false)]
+    #[Groups('conversation:messages:read')]
     private bool $active = false;
 
     #[ORM\Column(nullable: false)]
+    #[Groups('conversation:messages:read')]
     private bool $banned = false;
 
     /**
