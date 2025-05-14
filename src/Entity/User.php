@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -9,14 +12,17 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use ApiPlatform\OpenApi\Model\Response;
+use App\Controller\Api\UserControllerActive;
+use App\Controller\Api\UserControllerRegister;
 use App\Repository\UserRepository;
-use App\State\PostUserStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -24,17 +30,94 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(processor: PostUserStateProcessor::class),
         new Put(),
         new Delete(),
         new Patch(),
     ],
 )]
+#[Post(
+    uriTemplate: '/users/register',
+    controller: UserControllerRegister::class,
+    openapi: new Operation(
+        responses: [
+            '201' => new Response(
+                description: 'User registered successfully',
+            ),
+            '400' => new Response(
+                description: 'Invalid data provided',
+            ),
+            '409' => new Response(
+                description: 'User already exists',
+            ),
+        ],
+        summary: 'Register a new user',
+        requestBody: new RequestBody(
+            content: new \ArrayObject([
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'username' => ['type' => 'string'],
+                            'birthdate' => ['type' => 'string', 'format' => 'date'],
+                        ],
+                    ],
+                    'example' => [
+                        'username' => 'newuser',
+                        'birthdate' => '2000-01-01',
+                    ],
+                ],
+            ]),
+        ),
+    ),
+    name: 'post_user_register',
+)]
+#[Post(
+    uriTemplate: '/users/active',
+    controller: UserControllerActive::class,
+    openapi: new Operation(
+        responses: [
+            '200' => new Response(
+                description: 'User is active',
+                content: new \ArrayObject([
+                    'application/json' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'active' => ['type' => 'boolean'],
+                            ],
+                        ],
+                    ],
+                ]),
+            ),
+            '401' => new Response(
+                description: 'Invalid credentials',
+            ),
+        ],
+        summary: 'Verify if a user is active',
+        requestBody: new RequestBody(
+            content: new \ArrayObject([
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'email' => ['type' => 'string'],
+                        ],
+                    ],
+                    'example' => [
+                        'email' => 'user@example.com',
+                    ],
+                ],
+            ]),
+        ),
+    ),
+    name: 'post_user_active',
+)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -53,10 +136,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\Column(length: 180)]
+    #[ApiProperty(required: true)]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?string $email = null;
-
-    #[ORM\Column]
-    private ?string $password = null;
 
     /**
      * @var list<string> The user roles
@@ -65,6 +147,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[ORM\Column(length: 20, nullable: true)] // Must be set after account creation but not on first POST so user can be onboarded
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?string $username = null;
 
     #[ORM\Column(length: 200, nullable: true)]
@@ -81,7 +164,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $private = false;
 
     #[ORM\Column(nullable: false)]
-    private bool $active = true;
+    private bool $active = false;
 
     #[ORM\Column(nullable: false)]
     private bool $banned = false;
@@ -124,6 +207,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'author')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, Repost>
+     */
+    #[ORM\OneToMany(targetEntity: Repost::class, mappedBy: 'author')]
+    private Collection $reposts;
+
     public function __construct()
     {
         $this->twits = new ArrayCollection();
@@ -131,6 +220,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->followings = new ArrayCollection();
         $this->conversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->reposts = new ArrayCollection();
         $this->likes = new ArrayCollection();
     }
 
@@ -228,19 +318,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfileImgPath(string $profileImgPath): static
     {
         $this->profileImgPath = $profileImgPath;
-
-        return $this;
-    }
-
-    #[\Override]
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
 
         return $this;
     }
@@ -470,6 +547,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // set the owning side to null (unless already changed)
         if ($this->likes->removeElement($like) && $like->getAuthor() === $this) {
             $like->setAuthor(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Repost>
+     */
+    public function getReposts(): Collection
+    {
+        return $this->reposts;
+    }
+
+    public function addRepost(Repost $repost): static
+    {
+        if (!$this->reposts->contains($repost)) {
+            $this->reposts->add($repost);
+            $repost->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRepost(Repost $repost): static
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->reposts->removeElement($repost) && $repost->getAuthor() === $this) {
+            $repost->setAuthor(null);
         }
 
         return $this;

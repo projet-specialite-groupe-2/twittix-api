@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -19,7 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
         new Post(),
         new Delete(),
     ],
-)] class Like
+)]
+class Like
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -27,9 +29,11 @@ use Doctrine\ORM\Mapping as ORM;
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'likes')]
+    #[ApiProperty(required: true)]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'likes')]
+    #[ApiProperty(required: true)]
     private ?Twit $twit = null;
 
     public function getId(): ?int

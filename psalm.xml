@@ -20,6 +20,7 @@
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <directory name="src/Entity"/>
+                <directory name="src/Controller/Api"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
         <MissingTemplateParam errorLevel="suppress" />

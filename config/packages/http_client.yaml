@@ -1,0 +1,12 @@
+framework:
+  http_client:
+    scoped_clients:
+      authentication.client:
+        base_uri: '%env(AUTH_API_URL)%'
+
+when@dev:
+  framework:
+    http_client:
+      default_options:
+        verify_peer: false
+        verify_host: false

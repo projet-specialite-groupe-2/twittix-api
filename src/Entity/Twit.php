@@ -34,11 +34,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[ApiProperty(required: true)]
     private ?string $content = null;
 
     #[ORM\ManyToOne(inversedBy: 'twits')]
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(
+        required: true,
         openapiContext: [
             'example' => '/api/users/1',
             'description' => "IRI (identifiant de ressource) de l'auteur du post",
@@ -63,9 +65,16 @@ use Gedmo\Mapping\Annotation as Gedmo;
     #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'twit')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, Repost>
+     */
+    #[ORM\OneToMany(targetEntity: Repost::class, mappedBy: 'twit')]
+    private Collection $reposts;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
+        $this->reposts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -152,6 +161,34 @@ use Gedmo\Mapping\Annotation as Gedmo;
         // set the owning side to null (unless already changed)
         if ($this->likes->removeElement($like) && $like->getTwit() === $this) {
             $like->setTwit(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Repost>
+     */
+    public function getReposts(): Collection
+    {
+        return $this->reposts;
+    }
+
+    public function addRepost(Repost $repost): static
+    {
+        if (!$this->reposts->contains($repost)) {
+            $this->reposts->add($repost);
+            $repost->setTwit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRepost(Repost $repost): static
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->reposts->removeElement($repost) && $repost->getTwit() === $this) {
+            $repost->setTwit(null);
         }
 
         return $this;

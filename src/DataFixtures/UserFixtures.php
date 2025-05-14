@@ -6,7 +6,6 @@ use App\Entity\Follow;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFixtures extends Fixture
 {
@@ -14,16 +13,11 @@ class UserFixtures extends Fixture
 
     public const USER_REFERENCE2 = 'user2';
 
-    public function __construct(private readonly UserPasswordHasherInterface $passwordHasher)
-    {
-    }
-
     public function load(ObjectManager $manager): void
     {
         // User basic
         $user = new User();
         $user->setEmail('user@gmail.com');
-        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
         $user->setBiography('I am a user');
         $user->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $user->setProfileImgPath('profile.jpg');
@@ -36,7 +30,6 @@ class UserFixtures extends Fixture
 
         $user2 = new User();
         $user2->setEmail('user2@gmail.com');
-        $user2->setPassword($this->passwordHasher->hashPassword($user, 'password'));
         $user2->setBiography('I am a user2');
         $user2->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $user2->setProfileImgPath('profile.jpg');
@@ -53,7 +46,6 @@ class UserFixtures extends Fixture
         // User admin
         $admin = new User();
         $admin->setEmail('admin@gmail.com');
-        $admin->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
         $admin->setBiography('I am an admin');
         $admin->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $admin->setProfileImgPath('profile.jpg');
@@ -68,7 +60,6 @@ class UserFixtures extends Fixture
         // User for testing delete
         $userDelete = new User();
         $userDelete->setEmail('user-delete@gmail.com');
-        $userDelete->setPassword($this->passwordHasher->hashPassword($userDelete, 'password'));
         $userDelete->setBiography('I am a user for testing delete');
         $userDelete->setBirthdate(new \DateTimeImmutable('2000-01-01'));
         $userDelete->setProfileImgPath('profile.jpg');
