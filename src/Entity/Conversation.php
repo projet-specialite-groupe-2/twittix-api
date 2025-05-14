@@ -4,32 +4,64 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\ConversationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ConversationRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Put(),
+        new Post(),
+        new Delete(),
+        new Patch(),
+    ],
+)]
+#[ApiResource(
+    uriTemplate: '/users/{id}/conversations',
+    operations: [new GetCollection()],
+    uriVariables: [
+        'id' => new Link(
+            fromClass: User::class,
+            fromProperty: 'conversations',
+        ),
+    ],
+    normalizationContext: ['groups' => ['user:conversations:read']],
+)]
 class Conversation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:conversations:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[ApiProperty(required: true)]
+    #[Groups(['user:conversations:read'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:conversations:read'])]
     private ?string $picturePath = 'picture_image_path_base.jpg';
 
     #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['user:conversations:read'])]
     private \DateTimeImmutable $createdAt;
 
     /**
@@ -144,5 +176,19 @@ class Conversation
         }
 
         return $this;
+    }
+
+    #[Groups(['user:conversations:read'])]
+    public function getLastMessage(): ?Message
+    {
+        if ($this->messages->isEmpty()) {
+            return null;
+        }
+
+        $messages = $this->messages->toArray();
+
+        usort($messages, fn (Message $a, Message $b) => $b->getCreatedAt() <=> $a->getCreatedAt());
+
+        return $messages[0] ?? null;
     }
 }
