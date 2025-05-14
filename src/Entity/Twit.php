@@ -9,7 +9,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Controller\Api\TwitController;
 use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
 use App\State\TwitCollectionProvider;
@@ -23,15 +22,15 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ApiResource(
     operations: [
         new GetCollection(),
-        new Get(),
-        new Post(),
-        new Put(),
-        new Patch(),
         new GetCollection(
             uriTemplate: '/twits/all',
             name: 'get_twits_collection_custom',
             provider: TwitCollectionProvider::class,
-        )
+        ),
+        new Get(),
+        new Post(),
+        new Put(),
+        new Patch(),
     ],
 )] class Twit
 {

@@ -26,13 +26,8 @@
         <MissingTemplateParam errorLevel="suppress" />
         <PossiblyNullOperand>
             <errorLevel type="suppress">
-                <file name="src/Controller/Api/TwitController.php"/>
+                <file name="src/State/TwitCollectionProvider.php"/>
             </errorLevel>
         </PossiblyNullOperand>
-        <PossiblyNullReference>
-            <errorLevel type="suppress">
-                <file name="src/Controller/Api/TwitController.php"/>
-            </errorLevel>
-        </PossiblyNullReference>
     </issueHandlers>
 </psalm>
