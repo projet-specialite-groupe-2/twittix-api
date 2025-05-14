@@ -1,3 +1,4 @@
+
 services:
   php:
     build: docker/php
@@ -16,6 +17,7 @@ services:
       - net-twittix
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
+      
   nginx:
     image: nginx:1.27.3-alpine3.20
     expose:
@@ -29,6 +31,7 @@ services:
       - ./public:/srv/public
     networks:
       - net-twittix
+
   postgres:
     image: postgres:17.2-alpine3.21
     expose:
@@ -41,11 +44,10 @@ services:
       POSTGRES_DB: twittix
     volumes:
       - postgres:/var/lib/postgresql/data
+
 volumes:
-  postgres: ~
+  postgres:
 
 networks:
   net-twittix:
-    name: net-twittix
-    driver: bridge
-    attachable: true
+    external: true
