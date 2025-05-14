@@ -26,7 +26,7 @@
         <MissingTemplateParam errorLevel="suppress" />
         <PossiblyNullArgument>
             <errorLevel type="suppress">
-                <file name="src/State/TwitCollectionProvider.php"/>
+                <directory name="src/State"/>
             </errorLevel>
         </PossiblyNullArgument>
     </issueHandlers>
