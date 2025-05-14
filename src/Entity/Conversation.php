@@ -37,8 +37,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriVariables: [
         'id' => new Link(
             fromClass: User::class,
-            fromProperty: 'conversations'
-        )
+            fromProperty: 'conversations',
+        ),
     ],
     normalizationContext: ['groups' => ['user:conversations:read']],
 )]
@@ -187,7 +187,7 @@ class Conversation
 
         $messages = $this->messages->toArray();
 
-        usort($messages, fn(Message $a, Message $b) => $b->getCreatedAt() <=> $a->getCreatedAt());
+        usort($messages, fn (Message $a, Message $b) => $b->getCreatedAt() <=> $a->getCreatedAt());
 
         return $messages[0] ?? null;
     }

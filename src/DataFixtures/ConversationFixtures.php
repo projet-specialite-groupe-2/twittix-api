@@ -35,7 +35,6 @@ class ConversationFixtures extends Fixture implements DependentFixtureInterface
         $this->addReference(self::CONVERSATION_REFERENCE.'2', $conversation);
 
         $manager->flush();
-
     }
 
     public function getDependencies(): array

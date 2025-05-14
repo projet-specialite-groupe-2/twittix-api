@@ -11,10 +11,10 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Controller\Api\GetMessagesFromConversationController;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
@@ -34,8 +34,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
     uriVariables: [
         'id' => new Link(
             fromClass: Conversation::class,
-            fromProperty: 'messages'
-        )
+            fromProperty: 'messages',
+        ),
     ],
     normalizationContext: ['groups' => ['conversation:messages:read']],
 )]
@@ -91,8 +91,8 @@ class Message
     public function setConversation(?Conversation $conversation): static
     {
         $this->conversation = $conversation;
-        if(!$conversation->getMessages()->contains($this)) {
-            $conversation->addMessage($this);
+        if (!$conversation?->getMessages()->contains($this)) {
+            $conversation?->addMessage($this);
         }
 
         return $this;
