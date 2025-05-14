@@ -118,12 +118,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\HasLifecycleCallbacks]
+#[ApiFilter(SearchFilter::class, properties: ['id' => 'exact'])]
 class User implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('conversation:messages:read')]
+    #[Groups(['conversation:messages:read', 'user:conversations:read'])]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?int $id = null;
 
     #[Gedmo\Timestampable(on: 'create')]
@@ -143,7 +145,7 @@ class User implements UserInterface
     #[ORM\Column(length: 180)]
     #[ApiProperty(required: true)]
     #[ApiFilter(SearchFilter::class, strategy: 'exact')]
-    #[Groups('conversation:messages:read')]
+    #[Groups(['conversation:messages:read', 'user:conversations:read'])]
     private ?string $email = null;
 
     /**
