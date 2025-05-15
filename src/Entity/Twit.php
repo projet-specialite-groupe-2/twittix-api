@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\DTO\TwitCollectionDTO;
 use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
 use App\State\TwitCollectionProvider;
@@ -24,6 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
         new GetCollection(),
         new GetCollection(
             uriTemplate: '/twits/all',
+            output: TwitCollectionDTO::class,
             name: 'get_twits_collection_custom',
             provider: TwitCollectionProvider::class,
         ),

@@ -4,6 +4,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\DTO\TwitCollectionDTO;
 use App\Entity\Like;
 use App\Entity\Repost;
 use App\Entity\Twit;
@@ -34,28 +35,24 @@ class TwitCollectionProvider implements ProviderInterface
         /** @var Request $request */
         $request = $context['request'];
         /** @var int $page */
-        $page = $request->query->get('page');
+        $page = $request->query->get('page', 1); // Valeur par défaut
 
         $paginator = $this->twitRepository->getTwitsWithLikesAndReposts($page);
-
-        /** @var array $response */
-        $response = array_map(fn (Twit $twit) => [
-            'id' => $twit->getId(),
-            'content' => $twit->getContent(),
-            'author' => '/api/users/'.$twit->getAuthor()?->getId(),
-            'status' => $twit->getStatus(),
-            'createdAt' => $twit->getCreatedAt()->format('c'),
-            'isLikedByUser' => $this->isLikedByUser($twit, $user),
-            'isRepostedByUser' => $this->isRepostedByUser($twit, $user),
-            'nbLikes' => $twit->getLikes()->count(),
-            'nbReposts' => $twit->getReposts()->count(),
-            'nbComments' => 0, // TODO: implement Comment
-        ], iterator_to_array($paginator));
 
         /**
          * @psalm-suppress InvalidReturnStatement
          */
-        return $response;
+        return array_map(fn (Twit $twit): TwitCollectionDTO => new TwitCollectionDTO(
+            $twit->getId(),
+            $twit->getContent(),
+            '/api/users/'.$twit->getAuthor()?->getId(),
+            $twit->getCreatedAt()->format('c'),
+            $this->isLikedByUser($twit, $user),
+            $this->isRepostedByUser($twit, $user),
+            $twit->getLikes()->count(),
+            $twit->getReposts()->count(),
+            0, // TODO: implement comment counting
+        ), iterator_to_array($paginator));
     }
 
     private function isLikedByUser(Twit $twit, User $user): bool
