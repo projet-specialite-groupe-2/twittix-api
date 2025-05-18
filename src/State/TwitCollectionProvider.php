@@ -41,11 +41,15 @@ class TwitCollectionProvider implements ProviderInterface
 
         /**
          * @psalm-suppress InvalidReturnStatement
+         * @psalm-suppress InvalidScalarArgument
          */
         return array_map(fn (Twit $twit): TwitCollectionDTO => new TwitCollectionDTO(
             $twit->getId(),
             $twit->getContent(),
-            '/api/users/'.$twit->getAuthor()?->getId(),
+            $twit->getAuthor()?->getId(),
+            $twit->getAuthor()?->getEmail(),
+            $twit->getAuthor()?->getUsername(),
+            $twit->getAuthor()?->getProfileImgPath(),
             $twit->getCreatedAt()->format('c'),
             $this->isLikedByUser($twit, $user),
             $this->isRepostedByUser($twit, $user),
