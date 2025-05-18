@@ -23,12 +23,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ConversationRepository::class)]
 #[ApiResource(
     operations: [
-        new GetCollection(),
-        new Get(),
-        new Put(),
-        new Post(),
-        new Delete(),
-        new Patch(),
+        new Get(security: "is_granted('ROLE_USER') and is_granted('CONVERSATION_VIEW', object)"),
+        new Put(security: "is_granted('ROLE_USER') and is_granted('CONVERSATION_VIEW', object)"),
+        new Delete(security: "is_granted('ROLE_USER') and object.users.contains(user)"),
+        new Patch(security: "is_granted('ROLE_USER') and object.users.contains(user)"),
+        new GetCollection(security: "is_granted('ROLE_USER')"),
+        new Post(security: "is_granted('ROLE_USER')"),
     ],
 )]
 #[ApiResource(
@@ -41,6 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     normalizationContext: ['groups' => ['user:conversations:read']],
+    security: "is_granted('ROLE_USER') and is_granted('CONVERSATION_VIEW', object)"
 )]
 class Conversation
 {
