@@ -41,7 +41,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 280)]
     #[ApiProperty(required: true)]
     private ?string $content = null;
 
