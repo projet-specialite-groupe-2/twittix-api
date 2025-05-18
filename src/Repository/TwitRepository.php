@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use ApiPlatform\Doctrine\Orm\Paginator;
+use App\Entity\Follow;
 use App\Entity\Twit;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 use Doctrine\Persistence\ManagerRegistry;
@@ -27,6 +29,23 @@ class TwitRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('twit')
             ->setFirstResult($firstResult)
             ->setMaxResults(self::ITEMS_PER_PAGE)
+        ;
+
+        $doctrinePaginator = new DoctrinePaginator($queryBuilder);
+
+        return new Paginator($doctrinePaginator);
+    }
+
+    public function getFollowersTwits(int $page, User $userId): Paginator
+    {
+        $firstResult = ($page - 1) * self::ITEMS_PER_PAGE;
+
+        $queryBuilder = $this->createQueryBuilder('twit')
+            ->setFirstResult($firstResult)
+            ->setMaxResults(self::ITEMS_PER_PAGE)
+            ->join(Follow::class, 'f', 'WITH', 'f.followed = twit.author AND f.follower = :currentUser')
+            ->where('f.isAccepted = true')
+            ->setParameter('currentUser', $userId)
         ;
 
         $doctrinePaginator = new DoctrinePaginator($queryBuilder);

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Put;
 use App\DTO\TwitCollectionDTO;
 use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
+use App\State\TwitCollectionFollowersProvider;
 use App\State\TwitCollectionProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -28,6 +29,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
             output: TwitCollectionDTO::class,
             name: 'get_twits_collection_custom',
             provider: TwitCollectionProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/twits/followings',
+            name: 'get_twits_collection_followings',
+            provider: TwitCollectionFollowersProvider::class,
         ),
         new Get(),
         new Post(),
