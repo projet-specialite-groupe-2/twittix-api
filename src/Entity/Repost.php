@@ -40,20 +40,20 @@ use Symfony\Component\Serializer\Attribute\Groups;
             openapi: new Operation(
                 responses: [
                     '204' => new Response(
-                        description: 'Repost successfully deleted'
+                        description: 'Repost successfully deleted',
                     ),
                     '404' => new Response(
-                        description: 'Repost not found'
+                        description: 'Repost not found',
                     ),
                     '403' => new Response(
-                        description: 'Authentication required'
+                        description: 'Authentication required',
                     ),
                 ],
-                summary: 'Delete the current user\'s repost of a Twit',
-                description: 'Allows an authenticated user to remove their repost for a given Twit. Returns 404 if no repost exists.'
+                summary: "Delete the current user's repost of a Twit",
+                description: 'Allows an authenticated user to remove their repost for a given Twit. Returns 404 if no repost exists.',
             ),
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
-            processor: RepostDeleteProcessor::class
+            processor: RepostDeleteProcessor::class,
         ),
         new Post(
             uriTemplate: '/twits/{twit_id}/repost',
@@ -70,7 +70,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                                     '$ref' => '#/components/schemas/Repost',
                                 ],
                             ],
-                        ])
+                        ]),
                     ),
                     '400' => new Response(
                         description: 'Repost already exists or validation error',
@@ -99,13 +99,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
                             ],
                         ],
                     ]),
-                )
+                ),
             ),
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
             input: RepostCommentDTO::class,
             output: Repost::class,
             name: 'repost_create',
-            processor: RepostCreateProcessor::class
+            processor: RepostCreateProcessor::class,
         ),
     ],
 )]

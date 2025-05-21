@@ -4,6 +4,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\DTO\RepostCommentDTO;
 use App\Entity\Repost;
 use App\Entity\User;
 use App\Repository\RepostRepository;
@@ -27,8 +28,14 @@ class RepostCreateProcessor implements ProcessorInterface
     {
         /** @var int|null $twitId */
         $twitId = $uriVariables['twit_id'] ?? null;
+
+        if (!$data instanceof RepostCommentDTO) {
+            throw new \InvalidArgumentException('Expected instance of RepostCommentDTO');
+        }
+
         /** @var string|null $comment */
         $comment = $data->comment ?? null;
+
         $user = $this->security->getUser();
         if (!$user instanceof User) {
             throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');

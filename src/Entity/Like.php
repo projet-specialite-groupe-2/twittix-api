@@ -41,7 +41,7 @@ use Doctrine\ORM\Mapping as ORM;
                                     ],
                                 ],
                             ],
-                        ])
+                        ]),
                     ),
                     '404' => new Response(
                         description: 'Twit not found',
@@ -51,12 +51,12 @@ use Doctrine\ORM\Mapping as ORM;
                     ),
                 ],
                 summary: 'Toggle like on a Twit',
-                description: 'Toggles a like for the authenticated user on the given Twit. If already liked, it unlikes. If not liked, it creates a new like.'
+                description: 'Toggles a like for the authenticated user on the given Twit. If already liked, it unlikes. If not liked, it creates a new like.',
             ),
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
             input: null,
             output: Like::class,
-            processor: LikeToggleProcessor::class
+            processor: LikeToggleProcessor::class,
         ),
     ],
 )]
