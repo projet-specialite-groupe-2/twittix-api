@@ -5,36 +5,44 @@ namespace App\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Like;
+use App\Entity\User;
 use App\Repository\LikeRepository;
 use App\Repository\TwitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class LikeToggleProcessor  implements ProcessorInterface
+class LikeToggleProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private readonly EntityManagerInterface $entityManager,
         private readonly Security $security,
         private readonly TwitRepository $twitRepository,
-        private readonly LikeRepository $likeRepository
-    ) {}
+        private readonly LikeRepository $likeRepository,
+    ) {
+    }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?Like
     {
+        /** @var int|null $twitId */
+        $twitId = $uriVariables['twit_id'] ?? null;
         $user = $this->security->getUser();
-        $twitId = $uriVariables['twit_id'];
+
+        if (!$user instanceof User) {
+            throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
+        }
 
         $twit = $this->twitRepository->find($twitId);
-        if (!$twit) {
-            throw new NotFoundHttpException('Post not found');
+        if ($twit === null) {
+            throw new NotFoundHttpException('Twit not found');
         }
 
         $existingLike = $this->likeRepository->findOneBy(['twit' => $twit, 'user' => $user]);
 
-        if ($existingLike) {
-            $this->em->remove($existingLike);
-            $this->em->flush();
+        if ($existingLike !== null) {
+            $this->entityManager->remove($existingLike);
+            $this->entityManager->flush();
+
             return null; // Unliked
         }
 
@@ -42,8 +50,8 @@ class LikeToggleProcessor  implements ProcessorInterface
         $like->setTwit($twit);
         $like->setAuthor($user);
 
-        $this->em->persist($like);
-        $this->em->flush();
+        $this->entityManager->persist($like);
+        $this->entityManager->flush();
 
         return $like; // Liked
     }

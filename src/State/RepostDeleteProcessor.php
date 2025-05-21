@@ -13,12 +13,14 @@ class RepostDeleteProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly RepostRepository $repostRepository,
-        private readonly EntityManagerInterface $em,
+        private readonly EntityManagerInterface $entityManager,
         private readonly Security $security,
-    ) {}
+    ) {
+    }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
+        /** @var int|null $twitId */
         $twitId = $uriVariables['twit_id'] ?? null;
         $user = $this->security->getUser();
 
@@ -27,11 +29,11 @@ class RepostDeleteProcessor implements ProcessorInterface
             'user' => $user,
         ]);
 
-        if (!$repost) {
+        if ($repost === null) {
             throw new NotFoundHttpException('Repost not found.');
         }
 
-        $this->em->remove($repost);
-        $this->em->flush();
+        $this->entityManager->remove($repost);
+        $this->entityManager->flush();
     }
 }
