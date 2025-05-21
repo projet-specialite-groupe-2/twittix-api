@@ -6,9 +6,12 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\RepostRepository;
+use App\State\RepostCreateProcessor;
+use App\State\RepostDeleteProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -25,6 +28,22 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         new Post(),
         new Delete(),
+        new Delete(
+            uriTemplate: '/twits/{twit_id}/repost',
+            uriVariables: [
+                'twit_id' => new Link(fromClass: Twit::class),
+            ],
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            processor: RepostDeleteProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/twits/{twit_id}/repost',
+            uriVariables: [
+                'twit_id' => new Link(fromClass: Twit::class),
+            ],
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            processor: RepostCreateProcessor::class,
+        )
     ],
 )]
 class Repost

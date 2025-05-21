@@ -7,8 +7,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Repository\LikeRepository;
+use App\State\ToggleLikeProcessor;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LikeRepository::class)]
@@ -19,6 +21,14 @@ use Doctrine\ORM\Mapping as ORM;
         new Get(),
         new Post(),
         new Delete(),
+        new Post(
+            uriTemplate: '/twits/{twit_id}/like',
+            uriVariables: [
+                'twit_id' => new Link(fromClass: Twit::class),
+            ],
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            processor: ToggleLikeProcessor::class,
+        )
     ],
 )]
 class Like
