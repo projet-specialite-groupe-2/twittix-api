@@ -4,7 +4,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\DTO\TwitCollectionDTO;
+use App\DTO\TwitDTO;
 use App\Entity\Like;
 use App\Entity\Repost;
 use App\Entity\Twit;
@@ -43,7 +43,7 @@ class TwitCollectionProvider implements ProviderInterface
          * @psalm-suppress InvalidReturnStatement
          * @psalm-suppress InvalidScalarArgument
          */
-        return array_map(fn (Twit $twit): TwitCollectionDTO => new TwitCollectionDTO(
+        return array_map(fn (Twit $twit): TwitDTO => new TwitDTO(
             $twit->getId(),
             $twit->getContent(),
             $twit->getAuthor()?->getId(),

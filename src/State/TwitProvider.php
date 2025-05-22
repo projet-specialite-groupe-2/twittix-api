@@ -15,7 +15,7 @@ use App\Repository\TwitRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 
-class TwitCollectionFollowersProvider implements ProviderInterface
+class TwitProvider implements ProviderInterface
 {
     public function __construct(
         private readonly TwitRepository $twitRepository,
@@ -34,16 +34,16 @@ class TwitCollectionFollowersProvider implements ProviderInterface
 
         /** @var Request $request */
         $request = $context['request'];
-        /** @var int $page */
-        $page = $request->query->get('page');
+        $twit = $this->twitRepository->find($request->attributes->get('id'));
 
-        $paginator = $this->twitRepository->getFollowersTwits($page, $user);
+        if (!$twit instanceof Twit) {
+            return null;
+        }
 
         /**
-         * @psalm-suppress InvalidReturnStatement
          * @psalm-suppress InvalidScalarArgument
          */
-        return array_map(fn (Twit $twit): TwitDTO => new TwitDTO(
+        return new TwitDTO(
             $twit->getId(),
             $twit->getContent(),
             $twit->getAuthor()?->getId(),
@@ -56,7 +56,7 @@ class TwitCollectionFollowersProvider implements ProviderInterface
             $twit->getLikes()->count(),
             $twit->getReposts()->count(),
             0, // TODO: implement comment counting
-        ), iterator_to_array($paginator));
+        );
     }
 
     private function isLikedByUser(Twit $twit, User $user): bool
