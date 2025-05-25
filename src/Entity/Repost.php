@@ -6,9 +6,16 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use ApiPlatform\OpenApi\Model\Response;
+use App\DTO\RepostCommentDTO;
 use App\Repository\RepostRepository;
+use App\State\RepostCreateProcessor;
+use App\State\RepostDeleteProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -25,6 +32,81 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         new Post(),
         new Delete(),
+        new Delete(
+            uriTemplate: '/twits/{twit_id}/repost',
+            uriVariables: [
+                'twit_id' => new Link(fromClass: Twit::class),
+            ],
+            openapi: new Operation(
+                responses: [
+                    '204' => new Response(
+                        description: 'Repost successfully deleted',
+                    ),
+                    '404' => new Response(
+                        description: 'Repost not found',
+                    ),
+                    '403' => new Response(
+                        description: 'Authentication required',
+                    ),
+                ],
+                summary: "Delete the current user's repost of a Twit",
+                description: 'Allows an authenticated user to remove their repost for a given Twit. Returns 404 if no repost exists.',
+            ),
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            processor: RepostDeleteProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/twits/{twit_id}/repost',
+            uriVariables: [
+                'twit_id' => new Link(fromClass: Twit::class),
+            ],
+            openapi: new Operation(
+                responses: [
+                    '201' => new Response(
+                        description: 'Repost successfully created',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/Repost',
+                                ],
+                            ],
+                        ]),
+                    ),
+                    '400' => new Response(
+                        description: 'Repost already exists or validation error',
+                    ),
+                    '404' => new Response(
+                        description: 'Twit not found',
+                    ),
+                    '403' => new Response(
+                        description: 'Authentication required',
+                    ),
+                ],
+                summary: 'Create a repost with a comment for a Twit',
+                requestBody: new RequestBody(
+                    description: 'The comment to include with the repost',
+                    content: new \ArrayObject([
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'comment' => ['type' => 'string'],
+                                ],
+                                'required' => ['comment'],
+                            ],
+                            'example' => [
+                                'comment' => 'Check this out!',
+                            ],
+                        ],
+                    ]),
+                ),
+            ),
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            input: RepostCommentDTO::class,
+            output: Repost::class,
+            name: 'repost_create',
+            processor: RepostCreateProcessor::class,
+        ),
     ],
 )]
 class Repost
@@ -88,7 +170,7 @@ class Repost
         return $this->comment;
     }
 
-    public function setComment(string $comment): static
+    public function setComment(?string $comment): static
     {
         $this->comment = $comment;
 
