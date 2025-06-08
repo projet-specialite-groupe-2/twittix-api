@@ -4,16 +4,22 @@ namespace App\Tests\Api\WebTestCase;
 
 use App\Entity\Like;
 use App\Repository\LikeRepository;
+use App\Repository\UserRepository;
 use App\Tests\WebTestCase;
 
+/**
+ * @group likes
+ */
 class LikeApiTest extends WebTestCase
 {
     private readonly LikeRepository $likeRepository;
+    private readonly UserRepository $userRepository;
 
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->likeRepository = $this->getContainer()->get(LikeRepository::class);
+        $this->userRepository = $this->getContainer()->get(UserRepository::class);
     }
 
     public function testGetLikes()
@@ -31,6 +37,7 @@ class LikeApiTest extends WebTestCase
          */
         $response = $this->browser()->get(sprintf('/api/likes/%d', $id));
         $likeResponse = json_decode($response->content(), true);
+        dd($likeResponse);
         $like = $this->likeRepository->find($id);
         self::assertNotNull($like);
         self::assertSame('/api/users/'.$like->getAuthor()->getId(), $likeResponse['author']);
@@ -39,9 +46,12 @@ class LikeApiTest extends WebTestCase
 
     public function testPostLike()
     {
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $response = $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user) // TODO: Use when authentication is available
+            ->assertAuthenticated($user) // TODO: Use when authentication is available
             ->post('/api/likes', [
                 'json' => [
                     'author' => '/api/users/1',
@@ -65,8 +75,13 @@ class LikeApiTest extends WebTestCase
         $author = $like->getAuthor();
         $twit = $like->getTwit();
         self::assertNotNull($like);
+        $client = static::createClient();
+        $user = $this->userRepository->find($author->getId());
+        $client->loginUser($user);
         $this
             ->browser()
+            ->actingAs($user) // TODO: Use when authentication is available
+            ->assertAuthenticated($user) // TODO: Use when authentication is available
             ->delete(sprintf('/api/likes/%d', $like->getId()))
             ->assertStatus(204)
         ;

@@ -37,7 +37,7 @@ class LikeToggleProcessor implements ProcessorInterface
             throw new NotFoundHttpException('Twit not found');
         }
 
-        $existingLike = $this->likeRepository->findOneBy(['twit' => $twit, 'user' => $user]);
+        $existingLike = $this->likeRepository->findOneBy(['twit' => $twit, 'author' => $user]);
 
         if ($existingLike !== null) {
             $this->entityManager->remove($existingLike);
