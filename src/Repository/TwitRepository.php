@@ -22,20 +22,6 @@ class TwitRepository extends ServiceEntityRepository
         parent::__construct($registry, Twit::class);
     }
 
-    public function getTwitsWithLikesAndReposts(int $page): Paginator
-    {
-        $firstResult = ($page - 1) * self::ITEMS_PER_PAGE;
-
-        $queryBuilder = $this->createQueryBuilder('twit')
-            ->setFirstResult($firstResult)
-            ->setMaxResults(self::ITEMS_PER_PAGE)
-        ;
-
-        $doctrinePaginator = new DoctrinePaginator($queryBuilder);
-
-        return new Paginator($doctrinePaginator);
-    }
-
     public function getFollowersTwits(int $page, User $userId): Paginator
     {
         $firstResult = ($page - 1) * self::ITEMS_PER_PAGE;
