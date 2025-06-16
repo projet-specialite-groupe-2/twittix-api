@@ -24,7 +24,15 @@ class TwitApiTest extends WebTestCase
 
     public function testGetTwits()
     {
-        $response = $this->browser()->get('/api/twits')->assertStatus(200)->assertJson();
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get('/api/twits')
+            ->assertStatus(200)
+            ->assertJson();
         $twits = json_decode($response->content(), true);
         $this->assertNotEmpty($twits);
     }
@@ -48,9 +56,11 @@ class TwitApiTest extends WebTestCase
     {
         $user = $this->userRepository->findByEmail('user@gmail.com');
         $twitContent = 'This is my test twit';
+        $client = static::createClient();
+        $client->loginUser($user);
         $response = $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/twits', [
                 'json' => [
                     'content' => $twitContent,
@@ -80,10 +90,12 @@ class TwitApiTest extends WebTestCase
         $twit = $this->twitRepository->find(1);
         self::assertNotNull($twit);
         self::assertNotSame('Test-edited content for twit %d', $twit->getId(), $twit->getContent());
-
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->patch(sprintf('/api/twits/%d', $twit->getId()), [
                 'json' => [
                     'content' => sprintf('Test-edited content for twit %d', $twit->getId()),

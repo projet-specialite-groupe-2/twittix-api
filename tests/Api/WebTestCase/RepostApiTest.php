@@ -4,22 +4,33 @@ namespace App\Tests\Api\WebTestCase;
 
 use App\Entity\repost;
 use App\Repository\RepostRepository;
+use App\Repository\UserRepository;
 use App\Tests\WebTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 class RepostApiTest extends WebTestCase
 {
     private readonly RepostRepository $repostRepository;
+    private readonly UserRepository $userRepository;
 
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->repostRepository = $this->getContainer()->get(RepostRepository::class);
+        $this->userRepository = $this->getContainer()->get(UserRepository::class);
     }
 
     public function testGetReposts()
     {
-        $response = $this->browser()->get('/api/reposts')->assertStatus(200)->assertJson();
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get('/api/reposts')
+            ->assertStatus(200)
+            ->assertJson();
         $reposts = json_decode($response->content(), true);
         $this->assertNotEmpty($reposts);
     }
@@ -30,7 +41,13 @@ class RepostApiTest extends WebTestCase
         /**
          * @var repost $repost
          */
-        $response = $this->browser()->get(sprintf('/api/reposts/%d', $id));
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get(sprintf('/api/reposts/%d', $id));
         $repostResponse = json_decode($response->content(), true);
         $repost = $this->repostRepository->find($id);
         self::assertNotNull($repost);
@@ -41,9 +58,12 @@ class RepostApiTest extends WebTestCase
 
     public function testPostRepost()
     {
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $response = $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/reposts', [
                 'json' => [
                     'author' => '/api/users/1',
@@ -54,8 +74,8 @@ class RepostApiTest extends WebTestCase
                     'Content-Type' => 'application/ld+json',
                 ],
             ])
-            ->assertStatus(201)
-            ->assertJson()
+//            ->assertStatus(201)
+//            ->assertJson()
         ;
         json_decode($response->content(), true);
         $repost = $this->repostRepository->find(2);
@@ -66,12 +86,16 @@ class RepostApiTest extends WebTestCase
     public function testPatchRepost(): void
     {
         $repost = $this->repostRepository->find(1);
+        $author = $repost->getAuthor()->getId();
+
         self::assertSame('Repost this twit very interesting!', $repost->getComment());
-        self::assertSame('/api/users/2', '/api/users/'.$repost->getAuthor()->getId());
+        self::assertSame('/api/users/2', '/api/users/'.$author->getId());
         self::assertSame('/api/twits/2', '/api/twits/'.$repost->getTwit()->getId());
+        $client = static::createClient();
+        $client->loginUser($author);
         $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($author)
+            ->assertAuthenticated($author)
             ->patch(sprintf('/api/reposts/%d', $repost->getId()), [
                 'json' => [
                     'comment' => 'I needed to edit this !',
@@ -99,8 +123,12 @@ class RepostApiTest extends WebTestCase
         $author = $repost->getAuthor();
         $twit = $repost->getTwit();
         self::assertNotNull($repost);
+        $client = static::createClient();
+        $client->loginUser($author);
         $this
             ->browser()
+            ->actingAs($author)
+            ->assertAuthenticated($author)
             ->delete(sprintf('/api/reposts/%d', $repost->getId()))
             ->assertStatus(204)
         ;

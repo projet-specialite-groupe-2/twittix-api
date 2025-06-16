@@ -81,7 +81,7 @@ db-test:                                                    		## Init the test d
 	$(SYMFONY) doctrine:schema:validate --env=test
 
 test: db-test                                                		## Run all the test suite
-	$(EXEC_PHP) bin/phpunit --display-phpunit-deprecations
+	$(EXEC_PHP) bin/phpunit
 
 test-group: db-test	## Lance des tests par groupe
 	$(EXEC_PHP) bin/phpunit --group=$$group

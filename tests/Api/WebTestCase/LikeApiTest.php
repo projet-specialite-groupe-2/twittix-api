@@ -24,7 +24,15 @@ class LikeApiTest extends WebTestCase
 
     public function testGetLikes()
     {
-        $response = $this->browser()->get('/api/likes')->assertStatus(200)->assertJson();
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get('/api/likes')
+            ->assertStatus(200)
+            ->assertJson();
         $likes = json_decode($response->content(), true);
         $this->assertNotEmpty($likes);
     }
@@ -35,9 +43,14 @@ class LikeApiTest extends WebTestCase
         /**
          * @var Like $like
          */
-        $response = $this->browser()->get(sprintf('/api/likes/%d', $id));
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get(sprintf('/api/likes/%d', $id));
         $likeResponse = json_decode($response->content(), true);
-        dd($likeResponse);
         $like = $this->likeRepository->find($id);
         self::assertNotNull($like);
         self::assertSame('/api/users/'.$like->getAuthor()->getId(), $likeResponse['author']);
@@ -50,8 +63,8 @@ class LikeApiTest extends WebTestCase
         $user = $this->userRepository->find(1);
         $client->loginUser($user);
         $response = $this->browser()
-            ->actingAs($user) // TODO: Use when authentication is available
-            ->assertAuthenticated($user) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/likes', [
                 'json' => [
                     'author' => '/api/users/1',
@@ -80,12 +93,37 @@ class LikeApiTest extends WebTestCase
         $client->loginUser($user);
         $this
             ->browser()
-            ->actingAs($user) // TODO: Use when authentication is available
-            ->assertAuthenticated($user) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->delete(sprintf('/api/likes/%d', $like->getId()))
             ->assertStatus(204)
         ;
         $like = $this->likeRepository->findByAuthorAndTwit($author, $twit);
         self::assertEmpty($like);
+    }
+
+    public function testToggleLike(): void
+    {
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->post('/api/likes', [
+                'json' => [
+                    'author' => '/api/users/1',
+                    'twit' => '/api/twits/1',
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/ld+json',
+                ],
+            ])
+            ->assertStatus(201)
+            ->assertJson()
+        ;
+        json_decode($response->content(), true);
+        $like = $this->likeRepository->find(2);
+        self::assertNotNull($like);
     }
 }

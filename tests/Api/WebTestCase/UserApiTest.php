@@ -42,8 +42,6 @@ class UserApiTest extends WebTestCase
     public function testPostUser()
     {
         $response = $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
             ->post('/api/users', [
                 'json' => [
                     'email' => 'raclo@widop.com',
@@ -68,13 +66,15 @@ class UserApiTest extends WebTestCase
     public function testPatchUser()
     {
         $user = $this->userRepository->findByEmail('user@gmail.com');
+        $client = static::createClient();
+        $client->loginUser($user);
         self::assertNotNull($user);
         self::assertSame('I am a user', $user->getBiography());
         self::assertSame('profile.jpg', $user->getProfileImgPath());
 
         $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->patch(sprintf('/api/users/%d', $user->getId()), [
                 'json' => [
                     'biography' => sprintf('Test-Created biography for user %d', $user->getId()),
@@ -96,9 +96,13 @@ class UserApiTest extends WebTestCase
     public function testDeleteUser()
     {
         $user = $this->userRepository->findByEmail('user-delete@gmail.com'); // User in database that can be deleted
+        $client = static::createClient();
+        $client->loginUser($user);
         self::assertNotNull($user);
         $this
             ->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->delete(sprintf('/api/users/%d', $user->getId()))
             ->assertStatus(204)
         ;
@@ -110,9 +114,12 @@ class UserApiTest extends WebTestCase
     public function testUserValidEndpoint()
     {
         $user = $this->userRepository->findByEmail('user@gmail.com');
-
+        $client = static::createClient();
+        $client->loginUser($user);
         $response = $this
             ->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/users/active', [
                 'json' => [
                     'email' => 'user@gmail.com',
