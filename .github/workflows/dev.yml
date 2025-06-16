@@ -46,31 +46,31 @@ jobs:
             php ./bin/console doctrine:schema:validate && \
             php ./bin/console doctrine:fixtures:load --no-interaction --append
           "    
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: test
+  #   steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Deploy via SSH
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          # Paramètres pour la connexion SSH
-          SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.DEV_SERVER_IP }}
-          REMOTE_USER: ${{ secrets.DEV_HOST }}
-          TARGET: ./dev/api/
-          SCRIPT_AFTER: |
-            cd ./dev/api/ 
-            docker compose exec php sh -c "
-              composer install && \
-              php ./vendor/bin/rector process src --dry-run --verbose && \
-              php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots && \
-              php ./vendor/bin/psalm && \
-              php ./bin/console doctrine:database:create --if-not-exists && \
-              php ./bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration && \
-              php ./bin/console doctrine:schema:validate && \
-              php ./bin/console doctrine:fixtures:load --no-interaction
-            "    
+  #     - name: Deploy via SSH
+  #       uses: easingthemes/ssh-deploy@v5.1.0
+  #       with:
+  #         # Paramètres pour la connexion SSH
+  #         SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_KEY }}
+  #         REMOTE_HOST: ${{ secrets.DEV_SERVER_IP }}
+  #         REMOTE_USER: ${{ secrets.DEV_HOST }}
+  #         TARGET: ./dev/api/
+  #         SCRIPT_AFTER: |
+  #           cd ./dev/api/ 
+  #           docker compose exec php sh -c "
+  #             composer install && \
+  #             php ./vendor/bin/rector process src --dry-run --verbose && \
+  #             php ./vendor/bin/php-cs-fixer fix --verbose --show-progress=dots && \
+  #             php ./vendor/bin/psalm && \
+  #             php ./bin/console doctrine:database:create --if-not-exists && \
+  #             php ./bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration && \
+  #             php ./bin/console doctrine:schema:validate && \
+  #             php ./bin/console doctrine:fixtures:load --no-interaction
+  #           "    
