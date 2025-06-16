@@ -1,0 +1,29 @@
+security:
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        api_doc:
+            pattern: ^/api/docs
+            security: false
+
+        api_register:
+            pattern: ^/api/users/register
+            security: false
+
+        main:
+            lazy: true
+            provider: app_user_provider
+            stateless: true
+            custom_authenticators:
+                - App\Security\ApiAuthenticator
+
+    access_control:
+        - { path: ^/api, roles: ROLE_USER }
