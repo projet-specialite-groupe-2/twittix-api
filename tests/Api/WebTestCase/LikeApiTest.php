@@ -105,24 +105,38 @@ class LikeApiTest extends WebTestCase
     public function testToggleLike(): void
     {
         $client = static::createClient();
-        $user = $this->userRepository->find(1);
+        $user = $this->userRepository->find(2);
         $client->loginUser($user);
         $response = $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
-            ->post('/api/likes', [
-                'json' => [
-                    'author' => '/api/users/1',
-                    'twit' => '/api/twits/1',
-                ],
+            ->post('/api/twits/1/like', [
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
                 ],
+                'json' => []
             ])
             ->assertStatus(201)
             ->assertJson()
         ;
         json_decode($response->content(), true);
+        $like = $this->likeRepository->find(2);
+        self::assertNull($like);
+
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->post('/api/twits/1/like', [
+                'headers' => [
+                    'Content-Type' => 'application/ld+json',
+                ],
+                'json' => []
+            ])
+            ->assertStatus(201)
+            ->assertJson()
+        ;
+        json_decode($response->content(), true);
+        $this->likeRepository->findOneBy(['author' => $user, 'twit' => $like->getTwit()]);
         $like = $this->likeRepository->find(2);
         self::assertNotNull($like);
     }

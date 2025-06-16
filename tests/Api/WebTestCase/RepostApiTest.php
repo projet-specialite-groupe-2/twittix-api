@@ -8,6 +8,9 @@ use App\Repository\UserRepository;
 use App\Tests\WebTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
+/**
+ * @group reposts
+ */
 class RepostApiTest extends WebTestCase
 {
     private readonly RepostRepository $repostRepository;
@@ -56,37 +59,11 @@ class RepostApiTest extends WebTestCase
         self::assertSame($repost->getComment(), $repostResponse['comment']);
     }
 
-    public function testPostRepost()
-    {
-        $client = static::createClient();
-        $user = $this->userRepository->find(1);
-        $client->loginUser($user);
-        $response = $this->browser()
-            ->actingAs($user)
-            ->assertAuthenticated($user)
-            ->post('/api/reposts', [
-                'json' => [
-                    'author' => '/api/users/1',
-                    'twit' => '/api/twits/1',
-                    'comment' => 'This twit was very nice',
-                ],
-                'headers' => [
-                    'Content-Type' => 'application/ld+json',
-                ],
-            ])
-//            ->assertStatus(201)
-//            ->assertJson()
-        ;
-        json_decode($response->content(), true);
-        $repost = $this->repostRepository->find(2);
-        self::assertNotNull($repost);
-    }
-
     #[RunInSeparateProcess]
     public function testPatchRepost(): void
     {
         $repost = $this->repostRepository->find(1);
-        $author = $repost->getAuthor()->getId();
+        $author = $repost->getAuthor();
 
         self::assertSame('Repost this twit very interesting!', $repost->getComment());
         self::assertSame('/api/users/2', '/api/users/'.$author->getId());
@@ -129,10 +106,33 @@ class RepostApiTest extends WebTestCase
             ->browser()
             ->actingAs($author)
             ->assertAuthenticated($author)
-            ->delete(sprintf('/api/reposts/%d', $repost->getId()))
+            ->delete(sprintf('/api/twits/%d/repost', $twit->getId()))
             ->assertStatus(204)
         ;
         $repost = $this->repostRepository->findByAuthorAndTwit($author, $twit);
         self::assertEmpty($repost);
+    }
+
+    public function testPostRepost()
+    {
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->post('/api/twits/1/repost', [
+                'json' => [],
+                'headers' => [
+                    'Content-Type' => 'application/ld+json',
+                ],
+            ])
+            ->assertStatus(201)
+            ->assertJson()
+        ;
+
+        json_decode($response->content(), true);
+        $repost = $this->repostRepository->find(2);
+        self::assertNotNull($repost);
     }
 }
