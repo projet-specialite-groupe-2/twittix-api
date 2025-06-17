@@ -80,7 +80,6 @@ class LikeApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        json_decode($response->content(), true);
         $like = $this->likeRepository->find(2);
         self::assertNotNull($like);
     }
@@ -110,7 +109,7 @@ class LikeApiTest extends WebTestCase
         $client = static::createClient();
         $user = $this->userRepository->find(2);
         $client->loginUser($user);
-        $response = $this->browser()
+        $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
             ->post('/api/twits/1/like', [
@@ -122,11 +121,10 @@ class LikeApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        json_decode($response->content(), true);
         $like = $this->likeRepository->find(2);
         self::assertNull($like);
 
-        $response = $this->browser()
+        $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
             ->post('/api/twits/1/like', [
@@ -138,9 +136,8 @@ class LikeApiTest extends WebTestCase
             ->assertStatus(201)
             ->assertJson()
         ;
-        json_decode($response->content(), true);
-        $this->likeRepository->findOneBy(['author' => $user, 'twit' => $like->getTwit()]);
-        $like = $this->likeRepository->find(2);
+
+        $like = $this->likeRepository->findOneBy(['author' => $user, 'twit' => 1]);
         self::assertNotNull($like);
     }
 }
