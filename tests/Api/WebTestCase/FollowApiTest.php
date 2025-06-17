@@ -25,7 +25,15 @@ class FollowApiTest extends WebTestCase
 
     public function testGetFollows(): void
     {
-        $response = $this->browser()->get('/api/follows')->assertStatus(200)->assertJson();
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get('/api/follows')
+            ->assertStatus(200)->assertJson()
+        ;
         $follows = json_decode($response->content(), true);
         $this->assertNotEmpty($follows);
     }
@@ -36,7 +44,14 @@ class FollowApiTest extends WebTestCase
         /**
          * @var Follow $follow
          */
-        $response = $this->browser()->get(sprintf('/api/follows/%d', $id));
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get(sprintf('/api/follows/%d', $id))
+        ;
         $followResponse = json_decode($response->content(), true);
         $follow = $this->followRepository->find($id);
         self::assertNotNull($follow);
@@ -49,10 +64,12 @@ class FollowApiTest extends WebTestCase
     {
         $user = $this->userRepository->findByEmail('user@gmail.com');
         $user2 = $this->userRepository->findByEmail('user2@gmail.com');
+        $client = static::createClient();
+        $client->loginUser($user);
 
         $response = $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/follows', [
                 'json' => [
                     'isAccepted' => true,
@@ -81,10 +98,12 @@ class FollowApiTest extends WebTestCase
     {
         $follow = $this->followRepository->find(1);
         self::assertSame(false, $follow->isAccepted());
-
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $this->browser()
-//            ->actingAs($apiUser) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiUser) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->patch(sprintf('/api/follows/%d', $follow->getId()), [
                 'json' => [
                     'isAccepted' => true,

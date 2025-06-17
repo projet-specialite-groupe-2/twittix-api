@@ -13,15 +13,21 @@ use App\Repository\LikeRepository;
 use App\Repository\RepostRepository;
 use App\Repository\TwitRepository;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class TwitCollectionProvider implements ProviderInterface
 {
+    public const ITEMS_PER_PAGE = 30;
+
     public function __construct(
         private readonly TwitRepository $twitRepository,
         private readonly LikeRepository $likeRepository,
         private readonly RepostRepository $repostRepository,
         private readonly Security $security,
+        private readonly HttpClientInterface $recommendationClient,
+        #[Autowire(env: 'RECOMMENDATION_API_URL')]
+        private readonly string $recommendationUrl,
     ) {
     }
 
@@ -32,31 +38,45 @@ class TwitCollectionProvider implements ProviderInterface
             return null;
         }
 
-        /** @var Request $request */
-        $request = $context['request'];
-        /** @var int $page */
-        $page = $request->query->get('page', 1); // Valeur par défaut
+        try {
+            $response = $this->recommendationClient->request(
+                'GET',
+                sprintf('%s/recommendation/%d', $this->recommendationUrl, $user->getId()),
+            );
 
-        $paginator = $this->twitRepository->getTwitsWithLikesAndReposts($page);
+            if ($response->getStatusCode() !== 200) {
+                throw new \RuntimeException('Failed to fetch recommendations from the recommendation service');
+            }
 
-        /**
-         * @psalm-suppress InvalidReturnStatement
-         * @psalm-suppress InvalidScalarArgument
-         */
-        return array_map(fn (Twit $twit): TwitDTO => new TwitDTO(
-            $twit->getId(),
-            $twit->getContent(),
-            $twit->getAuthor()?->getId(),
-            $twit->getAuthor()?->getEmail(),
-            $twit->getAuthor()?->getUsername(),
-            $twit->getAuthor()?->getProfileImgPath(),
-            $twit->getCreatedAt()->format('c'),
-            $this->isLikedByUser($twit, $user),
-            $this->isRepostedByUser($twit, $user),
-            $twit->getLikes()->count(),
-            $twit->getReposts()->count(),
-            0, // TODO: implement comment counting
-        ), iterator_to_array($paginator));
+            $twitIds = $response->toArray();
+            $twits = $this->twitRepository->findBy(['id' => $twitIds]);
+
+            // Create relation between Twit and User for viewing
+            foreach ($twits as $twit) {
+                $twit->addViewer($user);
+            }
+
+            /**
+             * @psalm-suppress InvalidReturnStatement
+             * @psalm-suppress InvalidScalarArgument
+             */
+            return array_map(fn (Twit $twit): TwitDTO => new TwitDTO(
+                $twit->getId(),
+                $twit->getContent(),
+                $twit->getAuthor()?->getId(),
+                $twit->getAuthor()?->getEmail(),
+                $twit->getAuthor()?->getUsername(),
+                $twit->getAuthor()?->getProfileImgPath(),
+                $twit->getCreatedAt()->format('c'),
+                $this->isLikedByUser($twit, $user),
+                $this->isRepostedByUser($twit, $user),
+                $twit->getLikes()->count(),
+                $twit->getReposts()->count(),
+                0, // TODO: implement comment counting
+            ), iterator_to_array($twits));
+        } catch (\Exception $exception) {
+            throw new \RuntimeException('Failed to fetch recommendations', 0, $exception);
+        }
     }
 
     private function isLikedByUser(Twit $twit, User $user): bool

@@ -228,6 +228,12 @@ class User implements UserInterface
     #[ORM\OneToMany(targetEntity: Repost::class, mappedBy: 'author')]
     private Collection $reposts;
 
+    /**
+     * @var Collection<int, Twit>
+     */
+    #[ORM\ManyToMany(targetEntity: Twit::class, inversedBy: 'viewers')]
+    private Collection $viewedTwits;
+
     public function __construct()
     {
         $this->twits = new ArrayCollection();
@@ -237,6 +243,7 @@ class User implements UserInterface
         $this->messages = new ArrayCollection();
         $this->reposts = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->viewedTwits = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -591,6 +598,30 @@ class User implements UserInterface
         if ($this->reposts->removeElement($repost) && $repost->getAuthor() === $this) {
             $repost->setAuthor(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Twit>
+     */
+    public function getViewedTwits(): Collection
+    {
+        return $this->viewedTwits;
+    }
+
+    public function addTwitViewedUser(Twit $twitViewedUser): static
+    {
+        if (!$this->viewedTwits->contains($twitViewedUser)) {
+            $this->viewedTwits->add($twitViewedUser);
+        }
+
+        return $this;
+    }
+
+    public function removeTwitViewedUser(Twit $twitViewedUser): static
+    {
+        $this->viewedTwits->removeElement($twitViewedUser);
 
         return $this;
     }
