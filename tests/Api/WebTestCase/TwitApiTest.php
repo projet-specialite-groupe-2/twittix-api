@@ -32,7 +32,8 @@ class TwitApiTest extends WebTestCase
             ->assertAuthenticated($user)
             ->get('/api/twits')
             ->assertStatus(200)
-            ->assertJson();
+            ->assertJson()
+        ;
         $twits = json_decode($response->content(), true);
         $this->assertNotEmpty($twits);
     }
@@ -58,6 +59,7 @@ class TwitApiTest extends WebTestCase
         $twitContent = 'This is my test twit';
         $client = static::createClient();
         $client->loginUser($user);
+
         $response = $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)

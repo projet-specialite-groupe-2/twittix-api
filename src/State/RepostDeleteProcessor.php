@@ -4,11 +4,11 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Entity\User;
 use App\Repository\RepostRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\BrowserKit\Request;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -27,6 +27,10 @@ class RepostDeleteProcessor implements ProcessorInterface
         /** @var int|null $twitId */
         $twitId = $uriVariables['twit_id'] ?? null;
         $user = $this->security->getUser();
+        if (!$user instanceof User) {
+            throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
+        }
+
         $user = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
 
         $repost = $this->repostRepository->findOneBy([
@@ -41,6 +45,6 @@ class RepostDeleteProcessor implements ProcessorInterface
         $this->entityManager->remove($repost);
         $this->entityManager->flush();
 
-        return new Response("Repost deleted successfully", 204);
+        return new Response('Repost deleted successfully', 204);
     }
 }

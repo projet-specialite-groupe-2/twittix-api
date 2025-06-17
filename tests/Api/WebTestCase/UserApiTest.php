@@ -116,6 +116,7 @@ class UserApiTest extends WebTestCase
         $user = $this->userRepository->findByEmail('user@gmail.com');
         $client = static::createClient();
         $client->loginUser($user);
+
         $response = $this
             ->browser()
             ->actingAs($user)

@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 class ConversationApiTest extends WebTestCase
 {
     private readonly ConversationRepository $conversationRepository;
+
     private readonly UserRepository $userRepository;
 
     public function __construct(string $name)
@@ -29,7 +30,8 @@ class ConversationApiTest extends WebTestCase
             ->actingAs($user)
             ->assertAuthenticated($user)
             ->get('/api/conversations')
-            ->assertStatus(200)->assertJson();
+            ->assertStatus(200)->assertJson()
+        ;
         $conversations = json_decode($response->content(), true);
         $this->assertNotEmpty($conversations);
     }
@@ -47,7 +49,8 @@ class ConversationApiTest extends WebTestCase
             ->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
-            ->get(sprintf('/api/conversations/%d', $id));
+            ->get(sprintf('/api/conversations/%d', $id))
+        ;
         $conversationResponse = json_decode($response->content(), true);
         $conversation = $this->conversationRepository->find($id);
         self::assertNotNull($conversation);
@@ -111,7 +114,7 @@ class ConversationApiTest extends WebTestCase
         $conversation = $this->conversationRepository->find(1);
         self::assertNotNull($conversation);
         self::assertSame('Hello conversation!', $conversation->getTitle());
-        self::assertSame( 40, count($conversation->getMessages()));
+        self::assertSame(40, count($conversation->getMessages()));
         $client = static::createClient();
         $user = $this->userRepository->find(1);
         $client->loginUser($user);

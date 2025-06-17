@@ -12,7 +12,6 @@ use App\Repository\TwitRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -36,13 +35,14 @@ class RepostCreateProcessor implements ProcessorInterface
             throw new \InvalidArgumentException('Expected instance of RepostCommentDTO');
         }
 
-        $comment = $data->comment ?? "";
+        $comment = $data->comment ?? '';
 
         $user = $this->security->getUser();
-        $user = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
         if (!$user instanceof User) {
             throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
         }
+
+        $user = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
 
         $twit = $this->twitRepository->find($twitId);
         if ($twit === null) {

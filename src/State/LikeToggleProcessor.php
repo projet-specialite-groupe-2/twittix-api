@@ -29,14 +29,19 @@ class LikeToggleProcessor implements ProcessorInterface
         /** @var int|null $twitId */
         $twitId = $uriVariables['twit_id'] ?? null;
         $user = $this->security->getUser();
-        $user = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
         if (!$user instanceof User) {
             throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
         }
 
+        $user = $this->userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
+
         $twit = $this->twitRepository->find($twitId);
         if ($twit === null) {
             throw new NotFoundHttpException('Twit not found');
+        }
+
+        if ($user === null) {
+            throw new \LogicException('User not found. This should not happen if the user is authenticated.');
         }
 
         $existingLike = $this->likeRepository->findOneBy(['twit' => $twit, 'author' => $user->getId()]);

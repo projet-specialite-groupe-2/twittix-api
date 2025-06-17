@@ -13,6 +13,7 @@ use App\Tests\WebTestCase;
 class LikeApiTest extends WebTestCase
 {
     private readonly LikeRepository $likeRepository;
+
     private readonly UserRepository $userRepository;
 
     public function __construct(string $name)
@@ -32,7 +33,8 @@ class LikeApiTest extends WebTestCase
             ->assertAuthenticated($user)
             ->get('/api/likes')
             ->assertStatus(200)
-            ->assertJson();
+            ->assertJson()
+        ;
         $likes = json_decode($response->content(), true);
         $this->assertNotEmpty($likes);
     }
@@ -49,7 +51,8 @@ class LikeApiTest extends WebTestCase
         $response = $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
-            ->get(sprintf('/api/likes/%d', $id));
+            ->get(sprintf('/api/likes/%d', $id))
+        ;
         $likeResponse = json_decode($response->content(), true);
         $like = $this->likeRepository->find($id);
         self::assertNotNull($like);
@@ -114,7 +117,7 @@ class LikeApiTest extends WebTestCase
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
                 ],
-                'json' => []
+                'json' => [],
             ])
             ->assertStatus(201)
             ->assertJson()
@@ -130,7 +133,7 @@ class LikeApiTest extends WebTestCase
                 'headers' => [
                     'Content-Type' => 'application/ld+json',
                 ],
-                'json' => []
+                'json' => [],
             ])
             ->assertStatus(201)
             ->assertJson()

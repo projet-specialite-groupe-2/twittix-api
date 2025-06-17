@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 class RepostApiTest extends WebTestCase
 {
     private readonly RepostRepository $repostRepository;
+
     private readonly UserRepository $userRepository;
 
     public function __construct(string $name)
@@ -33,7 +34,8 @@ class RepostApiTest extends WebTestCase
             ->assertAuthenticated($user)
             ->get('/api/reposts')
             ->assertStatus(200)
-            ->assertJson();
+            ->assertJson()
+        ;
         $reposts = json_decode($response->content(), true);
         $this->assertNotEmpty($reposts);
     }
@@ -50,7 +52,8 @@ class RepostApiTest extends WebTestCase
         $response = $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
-            ->get(sprintf('/api/reposts/%d', $id));
+            ->get(sprintf('/api/reposts/%d', $id))
+        ;
         $repostResponse = json_decode($response->content(), true);
         $repost = $this->repostRepository->find($id);
         self::assertNotNull($repost);

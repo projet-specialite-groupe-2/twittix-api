@@ -32,7 +32,8 @@ class FollowApiTest extends WebTestCase
             ->actingAs($user)
             ->assertAuthenticated($user)
             ->get('/api/follows')
-            ->assertStatus(200)->assertJson();
+            ->assertStatus(200)->assertJson()
+        ;
         $follows = json_decode($response->content(), true);
         $this->assertNotEmpty($follows);
     }
@@ -49,7 +50,8 @@ class FollowApiTest extends WebTestCase
         $response = $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
-            ->get(sprintf('/api/follows/%d', $id));
+            ->get(sprintf('/api/follows/%d', $id))
+        ;
         $followResponse = json_decode($response->content(), true);
         $follow = $this->followRepository->find($id);
         self::assertNotNull($follow);
@@ -64,6 +66,7 @@ class FollowApiTest extends WebTestCase
         $user2 = $this->userRepository->findByEmail('user2@gmail.com');
         $client = static::createClient();
         $client->loginUser($user);
+
         $response = $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
