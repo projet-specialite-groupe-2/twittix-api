@@ -54,6 +54,7 @@ use Doctrine\ORM\Mapping as ORM;
                 description: 'Toggles a like for the authenticated user on the given Twit. If already liked, it unlikes. If not liked, it creates a new like.',
             ),
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            input: false,
             processor: LikeToggleProcessor::class,
         ),
     ],
