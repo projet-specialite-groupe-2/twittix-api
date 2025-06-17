@@ -35,7 +35,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Delete(
             uriTemplate: '/twits/{twit_id}/repost',
             uriVariables: [
-                'twit_id' => new Link(fromClass: Twit::class),
+                'twit_id' => new Link(fromProperty: 'reposts', fromClass: Twit::class),
             ],
             openapi: new Operation(
                 responses: [
@@ -58,7 +58,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Post(
             uriTemplate: '/twits/{twit_id}/repost',
             uriVariables: [
-                'twit_id' => new Link(fromClass: Twit::class),
+                'twit_id' => new Link(fromProperty: 'reposts', fromClass: Twit::class),
             ],
             openapi: new Operation(
                 responses: [

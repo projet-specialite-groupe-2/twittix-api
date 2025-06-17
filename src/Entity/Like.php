@@ -26,14 +26,14 @@ use Doctrine\ORM\Mapping as ORM;
         new Post(
             uriTemplate: '/twits/{twit_id}/like',
             uriVariables: [
-                'twit_id' => new Link(fromClass: Twit::class),
+                'twit_id' => new Link(fromProperty: 'likes', fromClass: Twit::class),
             ],
             openapi: new Operation(
                 responses: [
                     '200' => new Response(
                         description: 'Like added or removed',
                         content: new \ArrayObject([
-                            'application/json' => [
+                            'application/ld+json' => [
                                 'schema' => [
                                     'oneOf' => [
                                         ['$ref' => '#/components/schemas/Like'],
@@ -54,8 +54,6 @@ use Doctrine\ORM\Mapping as ORM;
                 description: 'Toggles a like for the authenticated user on the given Twit. If already liked, it unlikes. If not liked, it creates a new like.',
             ),
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
-            input: null,
-            output: Like::class,
             processor: LikeToggleProcessor::class,
         ),
     ],
