@@ -46,9 +46,9 @@ volumes:
 
 networks:
   net-twittix:
-    name: net-twittix
-    driver: bridge
-    attachable: true
+    # name: net-twittix
+    # driver: bridge
+    # attachable: true
     external: true
 
      
