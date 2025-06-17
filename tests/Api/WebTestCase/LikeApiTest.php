@@ -65,7 +65,7 @@ class LikeApiTest extends WebTestCase
         $client = static::createClient();
         $user = $this->userRepository->find(1);
         $client->loginUser($user);
-        $response = $this->browser()
+        $this->browser()
             ->actingAs($user)
             ->assertAuthenticated($user)
             ->post('/api/likes', [

@@ -22,11 +22,13 @@ class TwitFixtures extends Fixture implements DependentFixtureInterface
         $twit->setContent('Hello world!');
         $twit->setStatus(TwitStatus::PUBLISHED);
         $twit->setAuthor($this->getReference(UserFixtures::USER_REFERENCE, User::class));
+
         $manager->persist($twit);
 
         $like = new Like();
         $like->setTwit($twit);
         $like->setAuthor($this->getReference(UserFixtures::USER_REFERENCE2, User::class));
+
         $manager->persist($like);
 
         // Create a twit archived by the first user
@@ -34,17 +36,18 @@ class TwitFixtures extends Fixture implements DependentFixtureInterface
         $twit->setContent('Goodbye world!');
         $twit->setStatus(TwitStatus::DELETED);
         $twit->setAuthor($this->getReference(UserFixtures::USER_REFERENCE, User::class));
+
         $manager->persist($twit);
 
         $this->addReference(self::TWIT_REFERENCE, $twit);
 
         $faker = Factory::create();
 
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 20; ++$i) {
             $twit = new Twit();
             $twit->setContent($faker->sentence($nbWords = 16, $variableNbWords = true));
             $twit->setStatus(TwitStatus::PUBLISHED);
-            $twit->setAuthor($this->getReference($i%2 === 0 ? UserFixtures::USER_REFERENCE : UserFixtures::USER_REFERENCE2, User::class));
+            $twit->setAuthor($this->getReference($i % 2 === 0 ? UserFixtures::USER_REFERENCE : UserFixtures::USER_REFERENCE2, User::class));
             $manager->persist($twit);
         }
 
