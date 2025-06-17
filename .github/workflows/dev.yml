@@ -80,6 +80,3 @@ jobs:
               php ./bin/console doctrine:schema:validate && \
               php ./bin/console doctrine:fixtures:load --no-interaction
             "    
-networks:
-    net-twittix:
-      external: true

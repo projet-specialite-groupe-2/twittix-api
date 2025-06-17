@@ -49,3 +49,6 @@ networks:
     name: net-twittix
     driver: bridge
     attachable: true
+    external: true
+
+     
