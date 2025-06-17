@@ -13,7 +13,7 @@ class RepostFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        // Create a repost of the first twit by the first user
+        // Create a repost of the first twit by the 2nd user
         $repost = new Repost();
         $repost->setAuthor($this->getReference(UserFixtures::USER_REFERENCE2, User::class));
         $repost->setTwit($this->getReference(TwitFixtures::TWIT_REFERENCE, Twit::class));
