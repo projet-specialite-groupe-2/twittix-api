@@ -88,10 +88,17 @@ use Gedmo\Mapping\Annotation as Gedmo;
     #[ORM\OneToMany(targetEntity: Repost::class, mappedBy: 'twit')]
     private Collection $reposts;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'viewedTwits')]
+    private Collection $viewers;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
         $this->reposts = new ArrayCollection();
+        $this->viewers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -206,6 +213,33 @@ use Gedmo\Mapping\Annotation as Gedmo;
         // set the owning side to null (unless already changed)
         if ($this->reposts->removeElement($repost) && $repost->getTwit() === $this) {
             $repost->setTwit(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getViewers(): Collection
+    {
+        return $this->viewers;
+    }
+
+    public function addViewer(User $viewer): static
+    {
+        if (!$this->viewers->contains($viewer)) {
+            $this->viewers->add($viewer);
+            $viewer->addTwitViewedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeViewer(User $viewer): static
+    {
+        if ($this->viewers->removeElement($viewer)) {
+            $viewer->removeTwitViewedUser($this);
         }
 
         return $this;
