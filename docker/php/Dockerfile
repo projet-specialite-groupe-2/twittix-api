@@ -27,6 +27,12 @@ ADD entrypoint.sh /entrypoint
 
 COPY conf/php.ini /usr/local/etc/php/php.ini
 
+COPY ./conf/bashrc /home/foo/.bashrc
+COPY ./conf/bash_aliases /home/foo/.bash_aliases
+COPY ./conf/inputrc /home/foo/.inputrc
+COPY ./conf/history /home/foo/.bash_history
+COPY ./completion /etc/bash_completion.d
+
 WORKDIR /srv
 
 ENTRYPOINT ["/entrypoint"]
