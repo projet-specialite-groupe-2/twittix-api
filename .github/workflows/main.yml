@@ -47,7 +47,7 @@ jobs:
             php ./bin/console doctrine:fixtures:load --no-interaction --append
           "    
 
-    build:
+  build:
     runs-on: ubuntu-latest
     needs: test
 
