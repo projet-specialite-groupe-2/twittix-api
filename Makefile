@@ -49,6 +49,11 @@ db:                                        ## Reset the database
 	$(SYMFONY) doctrine:fixtures:load --no-interaction
 	$(SYMFONY) doctrine:schema:validate
 
+db-migrate:                                        ## Reset the database
+	$(SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration
+	$(SYMFONY) doctrine:schema:validate
+
+
 install: start vendor db	## Install
 
 cs:	## Apply cs fixer
