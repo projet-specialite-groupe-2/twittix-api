@@ -15,7 +15,7 @@ use App\Repository\TwitRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 
-class TwitCollectionFollowersProvider implements ProviderInterface
+class TwitCollectionCommentsProvider implements ProviderInterface
 {
     public function __construct(
         private readonly TwitRepository $twitRepository,
@@ -36,8 +36,10 @@ class TwitCollectionFollowersProvider implements ProviderInterface
         $request = $context['request'];
         /** @var int $page */
         $page = $request->query->get('page');
+        /** @var int $twitId */
+        $twitId = $uriVariables['id'];
 
-        $paginator = $this->twitRepository->getFollowersTwits($page, $user);
+        $paginator = $this->twitRepository->getCommentsTwits($page, $twitId);
 
         /**
          * @psalm-suppress InvalidReturnStatement

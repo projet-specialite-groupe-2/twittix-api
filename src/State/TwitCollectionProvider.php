@@ -72,7 +72,7 @@ class TwitCollectionProvider implements ProviderInterface
                 $this->isRepostedByUser($twit, $user),
                 $twit->getLikes()->count(),
                 $twit->getReposts()->count(),
-                0, // TODO: implement comment counting
+                $this->getNbComments($twit),
             ), iterator_to_array($twits));
         } catch (\Exception $exception) {
             throw new \RuntimeException('Failed to fetch recommendations', 0, $exception);
@@ -87,5 +87,10 @@ class TwitCollectionProvider implements ProviderInterface
     private function isRepostedByUser(Twit $twit, User $user): bool
     {
         return $this->repostRepository->findByAuthorAndTwit($user, $twit) instanceof Repost;
+    }
+
+    private function getNbComments(Twit $twit): int
+    {
+        return $this->twitRepository->getNbComments($twit);
     }
 }
