@@ -55,7 +55,7 @@ class TwitProvider implements ProviderInterface
             $this->isRepostedByUser($twit, $user),
             $twit->getLikes()->count(),
             $twit->getReposts()->count(),
-            0, // TODO: implement comment counting
+            $this->getNbComments($twit),
         );
     }
 
@@ -67,5 +67,10 @@ class TwitProvider implements ProviderInterface
     private function isRepostedByUser(Twit $twit, User $user): bool
     {
         return $this->repostRepository->findByAuthorAndTwit($user, $twit) instanceof Repost;
+    }
+
+    private function getNbComments(Twit $twit): int
+    {
+        return $this->twitRepository->getNbComments($twit);
     }
 }
