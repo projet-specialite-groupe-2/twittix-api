@@ -2,8 +2,8 @@ FROM php:8.3-fpm-alpine3.19
 
 COPY --from=composer:2.6.6 /usr/bin/composer /usr/bin/composer
 
-RUN  --mount=type=bind,from=mlocati/php-extension-installer:2.1.75,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
-      install-php-extensions intl zip bcmath apcu opcache pgsql pdo_pgsql
+RUN --mount=type=bind,from=mlocati/php-extension-installer:2.1.75,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
+    install-php-extensions intl zip bcmath apcu opcache pgsql pdo_pgsql
 
 RUN apk add --no-cache \
         bash \
