@@ -4,14 +4,17 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\DTO\TwitDTO;
 use App\Enum\TwitStatus;
 use App\Repository\TwitRepository;
+use App\State\TwitCollectionCommentsProvider;
 use App\State\TwitCollectionFollowersProvider;
 use App\State\TwitCollectionProvider;
 use App\State\TwitProvider;
@@ -36,12 +39,24 @@ use Gedmo\Mapping\Annotation as Gedmo;
             name: 'get_twits_collection_followings',
             provider: TwitCollectionFollowersProvider::class,
         ),
+        new GetCollection(
+            uriTemplate: '/twits/{id}/comments',
+            uriVariables: [
+                'id' => new Link(
+                    fromProperty: 'id',
+                    fromClass: Twit::class,
+                ),
+            ],
+            name: 'get_twits_collection_comments',
+            provider: TwitCollectionCommentsProvider::class,
+        ),
         new Get(
             provider: TwitProvider::class,
         ),
         new Post(),
         new Put(),
         new Patch(),
+        new Delete(),
     ],
 )] class Twit
 {
