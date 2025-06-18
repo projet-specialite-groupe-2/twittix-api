@@ -49,6 +49,11 @@ db:                                        ## Reset the database
 	$(SYMFONY) doctrine:fixtures:load --no-interaction
 	$(SYMFONY) doctrine:schema:validate
 
+db-migrate:                                        ## Reset the database
+	$(SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration
+	$(SYMFONY) doctrine:schema:validate
+
+
 install: start vendor db	## Install
 
 cs:	## Apply cs fixer
@@ -81,7 +86,7 @@ db-test:                                                    		## Init the test d
 	$(SYMFONY) doctrine:schema:validate --env=test
 
 test: db-test                                                		## Run all the test suite
-	$(EXEC_PHP) bin/phpunit --display-phpunit-deprecations
+	$(EXEC_PHP) bin/phpunit
 
 test-group: db-test	## Lance des tests par groupe
 	$(EXEC_PHP) bin/phpunit --group=$$group

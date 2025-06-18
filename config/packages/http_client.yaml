@@ -3,6 +3,8 @@ framework:
     scoped_clients:
       authentication.client:
         base_uri: '%env(AUTH_API_URL)%'
+      recommendation.client:
+        base_uri: '%env(RECOMMENDATION_API_URL)%'
 
 when@dev:
   framework:

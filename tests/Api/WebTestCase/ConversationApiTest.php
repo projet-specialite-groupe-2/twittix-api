@@ -4,6 +4,7 @@ namespace App\Tests\Api\WebTestCase;
 
 use App\Entity\Conversation;
 use App\Repository\ConversationRepository;
+use App\Repository\UserRepository;
 use App\Tests\WebTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -11,15 +12,26 @@ class ConversationApiTest extends WebTestCase
 {
     private readonly ConversationRepository $conversationRepository;
 
+    private readonly UserRepository $userRepository;
+
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->conversationRepository = $this->getContainer()->get(ConversationRepository::class);
+        $this->userRepository = $this->getContainer()->get(UserRepository::class);
     }
 
     public function testGetConversations()
     {
-        $response = $this->browser()->get('/api/conversations')->assertStatus(200)->assertJson();
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get('/api/conversations')
+            ->assertStatus(200)->assertJson()
+        ;
         $conversations = json_decode($response->content(), true);
         $this->assertNotEmpty($conversations);
     }
@@ -30,7 +42,15 @@ class ConversationApiTest extends WebTestCase
         /**
          * @var Conversation $conversation
          */
-        $response = $this->browser()->get(sprintf('/api/conversations/%d', $id));
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
+        $response = $this
+            ->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
+            ->get(sprintf('/api/conversations/%d', $id))
+        ;
         $conversationResponse = json_decode($response->content(), true);
         $conversation = $this->conversationRepository->find($id);
         self::assertNotNull($conversation);
@@ -40,9 +60,12 @@ class ConversationApiTest extends WebTestCase
 
     public function testPostConversation()
     {
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $response = $this->browser()
-//            ->actingAs($apiconversation) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiconversation) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/conversations', [
                 'json' => [
                     'title' => 'My newly created Conversation',
@@ -66,9 +89,12 @@ class ConversationApiTest extends WebTestCase
 
     public function testPostConversationWithoutUsers()
     {
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $this->browser()
-//            ->actingAs($apiconversation) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiconversation) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/conversations', [
                 'json' => [
                     'title' => 'My newly created Conversation',
@@ -88,10 +114,13 @@ class ConversationApiTest extends WebTestCase
         $conversation = $this->conversationRepository->find(1);
         self::assertNotNull($conversation);
         self::assertSame('Hello conversation!', $conversation->getTitle());
-        self::assertSame(1, count($conversation->getMessages()));
+        self::assertSame(40, count($conversation->getMessages()));
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $this->browser()
-//            ->actingAs($apiconversation) // TODO: Use when authentication is available
-//            ->assertAuthenticated($apiconversation) // TODO: Use when authentication is available
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->post('/api/messages', [
                 'json' => [
                     'content' => sprintf('Test-Created message for conversation %d', $conversation->getId()),
@@ -107,15 +136,20 @@ class ConversationApiTest extends WebTestCase
         ;
 
         $conversation = $this->conversationRepository->find(1);
-        self::assertSame(2, count($conversation->getMessages()));
+        self::assertSame(41, count($conversation->getMessages()));
     }
 
     public function testDeleteConversation()
     {
         $conversation = $this->conversationRepository->findOneBy(['id' => 1]);
         self::assertNotNull($conversation);
+        $client = static::createClient();
+        $user = $this->userRepository->find(1);
+        $client->loginUser($user);
         $this
             ->browser()
+            ->actingAs($user)
+            ->assertAuthenticated($user)
             ->delete(sprintf('/api/conversations/%d', $conversation->getId()))
             ->assertStatus(204)
         ;
