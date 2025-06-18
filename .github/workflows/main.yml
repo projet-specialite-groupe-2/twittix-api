@@ -36,6 +36,7 @@ jobs:
       
       - name: Run quality checks
         run: |
+          docker compose docker network inspect net-twittix >/dev/null 2>&1 || docker network create --label com.docker.compose.network=net-twittix net-twittix 
           docker compose exec php sh -c "
             composer install && \
             php ./vendor/bin/rector process src --dry-run --verbose && \
