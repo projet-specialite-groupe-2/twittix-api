@@ -12,6 +12,7 @@ use App\Entity\User;
 use App\Repository\LikeRepository;
 use App\Repository\RepostRepository;
 use App\Repository\TwitRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -28,6 +29,7 @@ class TwitCollectionProvider implements ProviderInterface
         private readonly HttpClientInterface $recommendationClient,
         #[Autowire(env: 'RECOMMENDATION_API_URL')]
         private readonly string $recommendationUrl,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -54,7 +56,10 @@ class TwitCollectionProvider implements ProviderInterface
             // Create relation between Twit and User for viewing
             foreach ($twits as $twit) {
                 $twit->addViewer($user);
+                $this->entityManager->persist($twit);
             }
+
+            $this->entityManager->flush();
 
             /**
              * @psalm-suppress InvalidReturnStatement
